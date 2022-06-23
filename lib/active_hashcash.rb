@@ -1,3 +1,7 @@
+require "active_support"
+require "action_view"
+require "rails"
+
 module ActiveHashcash
   extend ActiveSupport::Concern
 
