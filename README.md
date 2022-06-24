@@ -60,6 +60,7 @@ Simply have a look to `active_hashcash.rb`.
 
 You must have Redis in order to prevent double spent stamps. Otherwise it will be useless.
 It automatically tries to connect with the environement variables `ACTIVE_HASHCASH_REDIS_URL` or `REDIS_URL`.
+You can also manually set the URL with `ActiveHashcash.redis_url = redis://user:password@localhost:6379`.
 
 ## Complexity
 
