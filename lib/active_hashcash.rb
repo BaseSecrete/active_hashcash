@@ -7,7 +7,7 @@ module ActiveHashcash
     helper_method :hashcash_hidden_field_tag
   end
 
-  mattr_accessor :bits, instance_accessor: false, default: 16
+  mattr_accessor :bits, instance_accessor: false, default: 20
   mattr_accessor :resource, instance_accessor: false
   mattr_accessor :redis_url, instance_accessor: false
 

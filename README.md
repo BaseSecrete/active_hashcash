@@ -16,8 +16,6 @@ It blocks bots that do not interpret JavaScript since the proof of work is not c
 
 ## Limitations
 
-It requires the JavaScript Crypto API, and according to [Can I Use](https://caniuse.com/?search=crypto), it should work for 95% of users.
-
 The JavaScript implementation to solve the Hashcash problem is slow compare to the official C version.
 It needs some work and knowledges to be optimised. Unfortunately, I'm not a JavaScript expert.
 Maybe you have good JS skills to optimize it ?
@@ -64,9 +62,8 @@ You can also manually set the URL with `ActiveHashcash.redis_url = redis://user:
 
 ## Complexity
 
-Complexity is the most important parameter. By default its value is 16 because and requires few seconds to compute on a recent laptop.
-It's just the time to fill a login form. It would be great to have a higher complexity, but the implementation is currently too slow,
-to be a default value.
+Complexity is the most important parameter. By default its value is 20 because and requires few seconds to compute on a recent laptop.
+It's just the time to fill a login form. If your application includes people with slow and old devices consider lowering this value.
 
 You can change the complexity, either with `ActiveHashcash.bits = 20` or by overriding the method `hashcash_bits` in you controller.
 
