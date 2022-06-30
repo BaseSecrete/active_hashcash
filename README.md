@@ -16,7 +16,7 @@ It blocks bots that do not interpret JavaScript since the proof of work is not c
 
 ## Limitations
 
-The JavaScript implementation to solve the Hashcash problem is slow compare to the official C version.
+The JavaScript implementation is 10 to 20 times slower than the official C version.
 It needs some work and knowledges to be optimised. Unfortunately, I'm not a JavaScript expert.
 Maybe you have good JS skills to optimize it ?
 
@@ -62,8 +62,9 @@ You can also manually set the URL with `ActiveHashcash.redis_url = redis://user:
 
 ## Complexity
 
-Complexity is the most important parameter. By default its value is 20 because and requires few seconds to compute on a recent laptop.
-It's just the time to fill a login form. If your application includes people with slow and old devices consider lowering this value.
+Complexity is the most important parameter. By default its value is 20 and requires most of the time 5 to 20 seconds to be solved on a decent laptop.
+The user won't wait that long, since he needs to fill the form while the problem is solving.
+Howevever, if your application includes people with slow and old devices, then consider lowering this value, to 16 or 18.
 
 You can change the complexity, either with `ActiveHashcash.bits = 20` or by overriding the method `hashcash_bits` in you controller.
 
