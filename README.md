@@ -1,5 +1,7 @@
 # ActiveHashcash
 
+<img align="right" width="200px" src="logo.png" alt="Active Hashcash logo"/>
+
 ActiveHashcash protects your Rails application against DoS and bots.
 
 Hashcash is proof-of-work algorithm, invented by Adam Back in 1997, to protect systems against denial of service attacks.
@@ -13,6 +15,10 @@ ActiveHashcash performs the work in JavaScript and set the result into a hidden 
 The user submits the form, and the stamp is verified by the controller in a before action.
 
 It blocks bots that do not interpret JavaScript since the proof of work is not computed. For the more sophisticated bots, we are happy to slow them down.
+
+Here is a [demo on a login form](https://www.rorvswild.com/session) :
+
+![Active Hashcash GIF preview](demo.gif)
 
 ## Limitations
 
@@ -38,7 +44,7 @@ Add a Hashcash hidden field into the form you want to protect.
 
 ```erb
 <form>
-    <%= hashcash_hidden_field_tag %>
+  <%= hashcash_hidden_field_tag %>
 </form>
 ```
 
