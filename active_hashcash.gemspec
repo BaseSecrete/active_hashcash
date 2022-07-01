@@ -6,8 +6,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Alexis Bernard"]
   spec.email         = ["alexis@basesecrete.com"]
 
-  spec.summary       = "Potect your Rails application against DoS and bots."
-  spec.description   = "Potect your Rails application against DoS and bots."
+  spec.summary       = "ActiveHashcash protects your Rails application against brute force attacks, DoS and bots."
+  spec.description   = "ActiveHashcash protects your Rails application against brute force attacks, DoS and bots."
   spec.homepage      = "https://github.com/BaseSecrete/active_hashcash"
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 2.4.0"
@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "https://github.com/BaseSecrete/active_hashcash/CHANGELOG.md"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{\A(?:test|spec|features)/}) }
+    `git ls-files -z lib LICENSE.txt README.md CHANGELOG.md`.split("\x0")
   end
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }

@@ -2,7 +2,7 @@
 
 <img align="right" width="200px" src="logo.png" alt="Active Hashcash logo"/>
 
-ActiveHashcash protects your Rails application against DoS and bots.
+ActiveHashcash protects your Rails application against brute force attacks, DoS and bots.
 
 Hashcash is proof-of-work algorithm, invented by Adam Back in 1997, to protect systems against denial of service attacks.
 ActiveHashcash is an easy way to protect any Rails application against brute force attacks and some bots.
