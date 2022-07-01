@@ -16,7 +16,7 @@ The user submits the form, and the stamp is verified by the controller in a befo
 
 It blocks bots that do not interpret JavaScript since the proof of work is not computed. For the more sophisticated bots, we are happy to slow them down.
 
-Here is a [demo on a login form](https://www.rorvswild.com/session) :
+Here is a [demo on a registration form](https://www.rorvswild.com/account/new) :
 
 ![Active Hashcash GIF preview](demo.gif)
 
