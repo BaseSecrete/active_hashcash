@@ -73,8 +73,8 @@ module ActiveHashcash
   end
 
   def hashcash_stamp_is_valid?
-    stamp = Stamp.parse(hashcash_param)
-    stamp.valid? && stamp.bits >= hashcash_bits && stamp.parse_date >= Date.yesterday
+    stamp = hashcash_param && Stamp.parse(hashcash_param)
+    stamp && stamp.valid? && stamp.bits >= hashcash_bits && stamp.parse_date >= Date.yesterday
   end
 
   def hashcash_stamp_spent?
