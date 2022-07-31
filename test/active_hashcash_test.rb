@@ -51,7 +51,7 @@ class ActiveHashcashTest < Minitest::Test
   def test_check_hashcash_when_expired
     controller = SampleController.new
     controller.hashcash_redis.del("active_hashcash_stamps")
-    p controller.params = {hashcash: ActiveHashcash::Stamp.mint("test", date: 2.days.ago.to_date).to_s}
+    controller.params = {hashcash: ActiveHashcash::Stamp.mint("test", date: 2.days.ago.to_date).to_s}
     assert_raises(ActionController::InvalidAuthenticityToken) { controller.check_hashcash }
   end
 end
