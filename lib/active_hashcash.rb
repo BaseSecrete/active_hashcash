@@ -9,14 +9,22 @@ module ActiveHashcash
 
   mattr_accessor :bits, instance_accessor: false, default: 20
   mattr_accessor :resource, instance_accessor: false
-  mattr_accessor :redis_url, instance_accessor: false
+  mattr_accessor :redis_url, instance_accessor: false, default: ENV["ACTIVE_HASHCASH_REDIS_URL"] || ENV["REDIS_URL"]
+
+  def self.store
+    @store ||= Store.new(Redis.new(url: ActiveHashcash.redis_url))
+  end
+
+  def self.store=(store)
+    @store = store
+  end
 
   # TODO: protect_from_brute_force bits: 20, exception: ActionController::InvalidAuthenticityToken, with: :handle_failed_hashcash
 
   # Call me via a before_action when the form is submitted : `before_action :chech_hashcash, only: :create`
   def check_hashcash
     stamp = hashcash_param && Stamp.parse(hashcash_param)
-    if stamp && stamp.verify(hashcash_resource, hashcash_bits, Date.yesterday) && hashcash_store.add?(stamp)
+    if stamp && stamp.verify(hashcash_resource, hashcash_bits, Date.yesterday) && ActiveHashcash.store.add?(stamp)
       hashcash_after_success
     else
       hashcash_after_failure
@@ -62,18 +70,6 @@ module ActiveHashcash
   def hashcash_hidden_field_tag(name = :hashcash)
     options = {resource: hashcash_resource, bits: hashcash_bits, waiting_message: hashcash_waiting_message}
     hidden_field_tag(name, "", "data-hashcash" => options.to_json)
-  end
-
-  def hashcash_store
-    @hashcash_store ||= ActiveHashcash::Store.new(hashcash_redis)
-  end
-
-  def hashcash_redis
-    @hashcash_redis = Redis.new(url: hashcash_redis_url)
-  end
-
-  def hashcash_redis_url
-    ActiveHashcash.redis_url || ENV["ACTIVE_HASHCASH_REDIS_URL"] || ENV["REDIS_URL"]
   end
 end
 

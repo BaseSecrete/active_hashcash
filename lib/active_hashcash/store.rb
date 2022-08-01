@@ -2,7 +2,7 @@ module ActiveHashcash
   class Store
     attr_reader :redis
 
-    def initialize(redis)
+    def initialize(redis = Redis.new(url: ActiveHashcash.redis_url || ENV["ACTIVE_HASHCASH_REDIS_URL"] || ENV["REDIS_URL"]))
       @redis = redis
     end
 
