@@ -15,8 +15,8 @@ module ActiveHashcash
 
   # Call me via a before_action when the form is submitted : `before_action :chech_hashcash, only: :create`
   def check_hashcash
-    if hashcash_stamp_is_valid? && !hashcash_stamp_spent?
-      hashcash_redis.sadd("active_hashcash_stamps".freeze, hashcash_param)
+    stamp = hashcash_param && Stamp.parse(hashcash_param)
+    if stamp && stamp.verify(hashcash_resource, hashcash_bits, Date.yesterday) && hashcash_store.add?(stamp)
       hashcash_after_success
     else
       hashcash_after_failure
@@ -64,6 +64,10 @@ module ActiveHashcash
     hidden_field_tag(name, "", "data-hashcash" => options.to_json)
   end
 
+  def hashcash_store
+    @hashcash_store ||= ActiveHashcash::Store.new(hashcash_redis)
+  end
+
   def hashcash_redis
     @hashcash_redis = Redis.new(url: hashcash_redis_url)
   end
@@ -71,17 +75,6 @@ module ActiveHashcash
   def hashcash_redis_url
     ActiveHashcash.redis_url || ENV["ACTIVE_HASHCASH_REDIS_URL"] || ENV["REDIS_URL"]
   end
-
-  def hashcash_stamp_is_valid?
-    stamp = hashcash_param && Stamp.parse(hashcash_param)
-    stamp && stamp.valid? && stamp.bits >= hashcash_bits && stamp.parse_date >= Date.yesterday
-  end
-
-  def hashcash_stamp_spent?
-    hashcash_redis.sismember("active_hashcash_stamps".freeze, hashcash_param)
-  end
-
-
 
   class Engine < ::Rails::Engine
     config.assets.paths << File.expand_path("..", __FILE__)
@@ -103,3 +96,4 @@ module ActiveHashcash
 end
 
 require "active_hashcash/stamp"
+require "active_hashcash/store"

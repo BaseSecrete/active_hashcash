@@ -32,6 +32,10 @@ module ActiveHashcash
       Digest::SHA1.hexdigest(to_s).hex >> (160-bits) == 0
     end
 
+    def verify(resource, bits, date)
+      self.resource == resource && self.bits >= bits && parse_date >= date && valid?
+    end
+
     def to_s
       [version, bits, date, resource, extension, rand, counter].join(":")
     end

@@ -30,14 +30,17 @@ class ActiveHashcashTest < Minitest::Test
   class SampleController < ActionController::Base
     include ActiveHashcash
     attr_accessor :params
+
+    def request
+      OpenStruct.new(host: "test")
+    end
   end
 
   def test_check_hashcash_when_spent_twice
     controller = SampleController.new
     controller.hashcash_redis.del("active_hashcash_stamps")
     controller.params = {hashcash: ActiveHashcash::Stamp.mint("test").to_s}
-
-    controller.check_hashcash
+    refute(controller.check_hashcash)
     assert_raises(ActionController::InvalidAuthenticityToken) { controller.check_hashcash }
   end
 
@@ -45,6 +48,13 @@ class ActiveHashcashTest < Minitest::Test
     controller = SampleController.new
     controller.hashcash_redis.del("active_hashcash_stamps")
     controller.params = {hashcash: ActiveHashcash::Stamp.mint("test", bits: 1).to_s}
+    assert_raises(ActionController::InvalidAuthenticityToken) { controller.check_hashcash }
+  end
+
+  def test_check_hashcash_when_wrong_resource
+    controller = SampleController.new
+    controller.hashcash_redis.del("active_hashcash_stamps")
+    controller.params = {hashcash: ActiveHashcash::Stamp.mint("wrong").to_s}
     assert_raises(ActionController::InvalidAuthenticityToken) { controller.check_hashcash }
   end
 
