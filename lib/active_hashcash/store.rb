@@ -13,5 +13,13 @@ module ActiveHashcash
     def clear
       redis.del(redis.keys("active_hashcash_stamps*"))
     end
+
+    def clean
+      today = Date.today.strftime("%y%m%d")
+      yesterday = (Date.today - 1).strftime("%y%m%d")
+      keep = ["active_hashcash_stamps_#{today}", "active_hashcash_stamps_#{yesterday}"]
+      keys = redis.keys("active_hashcash_stamps*")
+      redis.del(keys - keep)
+    end
   end
 end

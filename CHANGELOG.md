@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Add ActiveHashcash::Store#clean to removed expired stamps
+
 ## [0.1.1] - 2022-07-08
 
 - Fix when hashcash param is nil

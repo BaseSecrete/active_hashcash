@@ -66,6 +66,8 @@ You must have Redis in order to prevent double spent stamps. Otherwise it will b
 It automatically tries to connect with the environement variables `ACTIVE_HASHCASH_REDIS_URL` or `REDIS_URL`.
 You can also manually set the URL with `ActiveHashcash.redis_url = redis://user:password@localhost:6379`.
 
+You should call `ActiveHashcash::Store#clean` once a day, to remove expired stamps.
+
 ## Complexity
 
 Complexity is the most important parameter. By default its value is 20 and requires most of the time 5 to 20 seconds to be solved on a decent laptop.
