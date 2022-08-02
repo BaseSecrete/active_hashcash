@@ -1,8 +1,11 @@
 # frozen_string_literal: true
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require "active_hashcash/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "active_hashcash"
-  spec.version       = "0.1.1"
+  spec.version       = ActiveHashcash::VERSION
   spec.authors       = ["Alexis Bernard"]
   spec.email         = ["alexis@basesecrete.com"]
 

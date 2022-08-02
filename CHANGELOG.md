@@ -1,4 +1,4 @@
-## [Unreleased]
+## 0.2.0 - 2022-08-02
 
 - Add ActiveHashcash::Store#clean to removed expired stamps
 
