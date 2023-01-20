@@ -7,7 +7,7 @@ module ActiveHashcash
     end
 
     def add?(stamp)
-      redis.sadd("active_hashcash_stamps_#{stamp.date}", stamp) ? self : nil
+      redis.sadd("active_hashcash_stamps_#{stamp.date}", stamp.to_s) ? self : nil
     end
 
     def clear
