@@ -21,8 +21,8 @@ class ActiveHashcash::StoreTest < Minitest::Test
       ActiveHashcash::Stamp.mint("test", date: Date.today + 3),
     ]
     stamps.each { |stamp| assert(store.add?(stamp)) }
-    assert_equal(7, store.redis.keys("active_hashcash_stamps*").size)
+    assert_equal(7, store.redis.keys("ActiveHashcash::stamps_on_*").size)
     store.clean
-    assert_equal(2, store.redis.keys("active_hashcash_stamps*").size)
+    assert_equal(2, store.redis.keys("ActiveHashcash::stamps_on_*").size)
   end
 end

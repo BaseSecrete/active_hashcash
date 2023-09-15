@@ -7,18 +7,24 @@ module ActiveHashcash
     end
 
     def add?(stamp)
-      redis.sadd("active_hashcash_stamps_#{stamp.date}", stamp.to_s) ? self : nil
+      redis.sadd(key_on(stamp.date), stamp.to_s) == 0 ? nil : self
     end
 
     def clear
-      redis.del(redis.keys("active_hashcash_stamps*"))
+      redis.del(redis.keys(KEY_PREFIX + "*"))
+    end
+
+    KEY_PREFIX = "ActiveHashcash::stamps_on_"
+
+    def key_on(date)
+      KEY_PREFIX + date
     end
 
     def clean
       today = Date.today.strftime("%y%m%d")
       yesterday = (Date.today - 1).strftime("%y%m%d")
-      keep = ["active_hashcash_stamps_#{today}", "active_hashcash_stamps_#{yesterday}"]
-      keys = redis.keys("active_hashcash_stamps*")
+      keep = [key_on(today), key_on(yesterday)]
+      keys = redis.keys("#{KEY_PREFIX}*")
       redis.del(keys - keep)
     end
   end
