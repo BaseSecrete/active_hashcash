@@ -1,0 +1,14 @@
+<table>
+  <tr>
+    <th><%= ActiveHashcash::Stamp.human_attribute_name(:created_at) %></th>
+    <th><%= ActiveHashcash::Stamp.human_attribute_name(:ip_address) %></th>
+    <th>Value</th>
+  </tr>
+  <% for stamp in @stamps %>
+    <tr>
+      <td><%= stamp.created_at %></td>
+      <td><%= stamp.ip_address %></td>
+      <td><%= stamp %></td>
+    </tr>
+  <% end %>
+</table>

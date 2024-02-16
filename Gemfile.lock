@@ -168,6 +168,13 @@ GEM
     reline (0.3.9)
       io-console (~> 0.5)
     ruby2_keywords (0.0.5)
+    sprockets (4.2.1)
+      concurrent-ruby (~> 1.0)
+      rack (>= 2.2.4, < 4)
+    sprockets-rails (3.4.2)
+      actionpack (>= 5.2)
+      activesupport (>= 5.2)
+      sprockets (>= 3.0.0)
     stringio (3.0.4)
     thor (1.2.2)
     timeout (0.4.0)
@@ -185,6 +192,7 @@ PLATFORMS
 DEPENDENCIES
   active_hashcash!
   rake (~> 13.0)
+  sprockets-rails
 
 BUNDLED WITH
    2.2.22

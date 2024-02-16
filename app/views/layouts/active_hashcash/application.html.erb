@@ -1,15 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html class="active-analytics">
 <head>
-  <title>Active hashcash</title>
+  <title>Active Hashcash</title>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
-  <%= stylesheet_link_tag    "active_hashcash/application", media: "all" %>
+  <%= tag.link rel: "stylesheet", href: asset_path(:ariato, format: :css) %>
+  <%= tag.link rel: "stylesheet", href: asset_path(:application, format: :css) %>
 </head>
 <body>
+  <header>
+    <nav aria-label="site">
+      <%= link_to "Active Hashcash", root_path %>
+    </nav>
+  </header>
 
-<%= yield %>
+  <main>
+    <%= yield %>
+  </main>
 
+  <footer>
+  </footer>
 </body>
 </html>
