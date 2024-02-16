@@ -1,22 +1,15 @@
-path = File.expand_path("#{File.dirname(__FILE__)}/../lib")
-$LOAD_PATH.unshift(path)
+# Configure Rails Environment
+ENV["RAILS_ENV"] = "test"
 
-# Stubs Rails::Engine.config.assets.paths
-require "action_controller"
-require "active_support"
-require "action_pack"
-require "action_view"
-require "rails"
+require_relative "../test/dummy/config/environment"
+ActiveRecord::Migrator.migrations_paths = [File.expand_path("../test/dummy/db/migrate", __dir__)]
+ActiveRecord::Migrator.migrations_paths << File.expand_path("../db/migrate", __dir__)
+require "rails/test_help"
 
-module ActiveHashcash
-  class Engine < ::Rails::Engine
-    config.assets = Rails::Railtie::Configuration.new
-    config.assets.paths = []
-  end
+# Load fixtures from the engine
+if ActiveSupport::TestCase.respond_to?(:fixture_paths=)
+  ActiveSupport::TestCase.fixture_paths = [File.expand_path("fixtures", __dir__)]
+  ActionDispatch::IntegrationTest.fixture_paths = ActiveSupport::TestCase.fixture_paths
+  ActiveSupport::TestCase.file_fixture_path = File.expand_path("fixtures", __dir__) + "/files"
+  ActiveSupport::TestCase.fixtures :all
 end
-
-require "redis"
-require "active_hashcash"
-require "minitest/autorun"
-
-ActiveHashcash.bits = 2 # Speedup tests

@@ -7,3 +7,6 @@
 /spec/reports/
 /tmp/
 *.gem
+*.sqlite*
+*.log
+**/.DS_Store

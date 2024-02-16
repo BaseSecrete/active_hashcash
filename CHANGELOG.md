@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Store stamps into the database instead of Redis
 - Fix ActiveHashcash::Store#add? by converting stamp to a string
 
 ## 0.2.0 - 2022-08-02
