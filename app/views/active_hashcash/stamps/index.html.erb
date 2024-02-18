@@ -2,12 +2,14 @@
   <tr>
     <th><%= ActiveHashcash::Stamp.human_attribute_name(:created_at) %></th>
     <th><%= ActiveHashcash::Stamp.human_attribute_name(:ip_address) %></th>
-    <th>Value</th>
+    <th><%= ActiveHashcash::Stamp.human_attribute_name(:request_path) %></th>
+    <th><%= ActiveHashcash::Stamp.model_name.human %></th>
   </tr>
   <% for stamp in @stamps %>
     <tr>
       <td><%= stamp.created_at %></td>
       <td><%= stamp.ip_address %></td>
+      <td><%= stamp.request_path %></td>
       <td><%= stamp %></td>
     </tr>
   <% end %>

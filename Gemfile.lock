@@ -175,6 +175,7 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
+    sqlite3 (1.7.2-x86_64-linux)
     stringio (3.0.4)
     thor (1.2.2)
     timeout (0.4.0)
@@ -193,6 +194,7 @@ DEPENDENCIES
   active_hashcash!
   rake (~> 13.0)
   sprockets-rails
+  sqlite3
 
 BUNDLED WITH
    2.2.22

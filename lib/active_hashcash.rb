@@ -18,12 +18,28 @@ module ActiveHashcash
 
   # Call me via a before_action when the form is submitted : `before_action :check_hashcash, only: :create`
   def check_hashcash
-    #stamp = hashcash_param && Stamp.spend(hashcash_param)
-    if hashcash_param && Stamp.spend(hashcash_param, hashcash_resource, hashcash_bits, Date.yesterday, request.remote_ip)
+    attrs = {
+      ip_address: hashcash_ip_address,
+      request_path: hashcash_request_path,
+      context: hashcash_stamp_context
+    }
+    if hashcash_param && Stamp.spend(hashcash_param, hashcash_resource, hashcash_bits, Date.yesterday, attrs)
       hashcash_after_success
     else
       hashcash_after_failure
     end
+  end
+
+  def hashcash_ip_address
+    request.remote_ip
+  end
+
+  def hashcash_request_path
+    request.path
+  end
+
+  def hashcash_stamp_context
+    # Override this method to store custom data for each stamp
   end
 
   # Override the methods below in your controller, to change any parameter of behaviour.

@@ -4,9 +4,9 @@ module ActiveHashcash
   class Stamp < ApplicationRecord
     validates_presence_of :version, :bits, :date, :resource, :rand, :counter
 
-    def self.spend(string, resource, bits, date, ip_address = nil)
+    def self.spend(string, resource, bits, date, options = {})
       stamp = parse(string)
-      stamp.ip_address = ip_address
+      stamp.attributes = options
       stamp.verify(resource, bits, date) && stamp.save
     rescue ActiveRecord::RecordNotUnique
       false

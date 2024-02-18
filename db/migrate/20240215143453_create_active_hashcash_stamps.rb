@@ -8,7 +8,9 @@ class CreateActiveHashcashStamps < ActiveRecord::Migration[5.2]
       t.string :ext, null: false
       t.string :rand, null: false
       t.string :counter, null: false
+      t.string :request_path
       t.string :ip_address
+      t.jsonb :context
       t.timestamps
     end
     add_index :active_hashcash_stamps, [:ip_address, :created_at], where: "ip_address IS NOT NULL"
