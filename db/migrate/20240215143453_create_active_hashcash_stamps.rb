@@ -10,7 +10,13 @@ class CreateActiveHashcashStamps < ActiveRecord::Migration[5.2]
       t.string :counter, null: false
       t.string :request_path
       t.string :ip_address
-      t.jsonb :context
+
+      if t.respond_to?(:jsonb)
+        t.jsonb :context # SQLite JSONB support from version 3.45 (2024-01-15)
+      elsif t.respond_to?(:json)
+        t.json :context
+      end
+
       t.timestamps
     end
     add_index :active_hashcash_stamps, [:ip_address, :created_at], where: "ip_address IS NOT NULL"

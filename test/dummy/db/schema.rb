@@ -12,16 +12,20 @@
 
 ActiveRecord::Schema[7.1].define(version: 2024_02_15_143453) do
   create_table "active_hashcash_stamps", force: :cascade do |t|
-    t.float "version", null: false
+    t.string "version", null: false
     t.integer "bits", null: false
     t.date "date", null: false
     t.string "resource", null: false
     t.string "ext", null: false
     t.string "rand", null: false
     t.string "counter", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index "version || bits || date || resource || ext || rand || counter", name: "active_hashcash_stamps_unique", unique: true
+    t.string "request_path"
+    t.string "ip_address"
+    t.json "context"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.index ["counter", "rand", "date", "resource", "bits", "version", "ext"], name: "index_active_hashcash_stamps_unique", unique: true
+    t.index ["ip_address", "created_at"], name: "index_active_hashcash_stamps_on_ip_address_and_created_at", where: "ip_address IS NOT NULL"
   end
 
 end
