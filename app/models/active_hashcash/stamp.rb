@@ -5,7 +5,7 @@ module ActiveHashcash
     validates_presence_of :version, :bits, :date, :resource, :rand, :counter
 
     def self.spend(string, resource, bits, date, options = {})
-      stamp = parse(string)
+      return false unless stamp = parse(string)
       stamp.attributes = options
       stamp.verify(resource, bits, date) && stamp.save
     rescue ActiveRecord::RecordNotUnique
@@ -13,7 +13,9 @@ module ActiveHashcash
     end
 
     def self.parse(string)
+      return unless string
       args = string.split(":")
+      return if args.size != 7
       new(version: args[0], bits: args[1], date: Date.strptime(args[2], ActiveHashcash.date_format), resource: args[3], ext: args[4], rand: args[5], counter: args[6])
     end
 

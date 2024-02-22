@@ -3,6 +3,10 @@ require "test_helper"
 module ActiveHashcash
   class StampTest < ActiveSupport::TestCase
     def test_parse_and_to_s
+      refute(ActiveHashcash::Stamp.parse(nil))
+      refute(ActiveHashcash::Stamp.parse(""))
+      refute(ActiveHashcash::Stamp.parse("1:20:220623"))
+
       str = "1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh"
       assert_equal(str, ActiveHashcash::Stamp.parse(str).to_s)
     end
@@ -24,6 +28,10 @@ module ActiveHashcash
     end
 
     def test_spend
+      refute(ActiveHashcash::Stamp.spend(nil, "resource", 2, Date.yesterday), "malformed")
+      refute(ActiveHashcash::Stamp.spend("", "resource", 2, Date.yesterday), "malformed")
+      refute(ActiveHashcash::Stamp.spend("1:20:220623", "resource", 2, Date.yesterday), "malformed")
+
       stamp = ActiveHashcash::Stamp.mint("resource", bits: 2, date: Date.yesterday)
       refute(ActiveHashcash::Stamp.spend(stamp.to_s, "resource2", 2, Date.yesterday), "wrong resource")
       assert(ActiveHashcash::Stamp.spend(stamp.to_s, "resource", 2, Date.yesterday), "first time spent")

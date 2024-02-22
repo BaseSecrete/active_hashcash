@@ -30,6 +30,8 @@ module ActiveHashcash
     end
   end
 
+  # Override the methods below in your controller, to change any parameter or behaviour.
+
   def hashcash_ip_address
     request.remote_ip
   end
@@ -41,8 +43,6 @@ module ActiveHashcash
   def hashcash_stamp_context
     # Override this method to store custom data for each stamp
   end
-
-  # Override the methods below in your controller, to change any parameter of behaviour.
 
   # By default the host name is used as the resource.
   # It' should be good for most cases and prevent from reusing the same stamp between sites.
