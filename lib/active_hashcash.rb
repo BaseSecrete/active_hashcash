@@ -21,7 +21,7 @@ module ActiveHashcash
 
   # TODO: protect_from_brute_force bits: 20, exception: ActionController::InvalidAuthenticityToken, with: :handle_failed_hashcash
 
-  # Call me via a before_action when the form is submitted : `before_action :chech_hashcash, only: :create`
+  # Call me via a before_action when the form is submitted : `before_action :check_hashcash, only: :create`
   def check_hashcash
     stamp = hashcash_param && Stamp.parse(hashcash_param)
     if stamp && stamp.verify(hashcash_resource, hashcash_bits, Date.yesterday) && ActiveHashcash.store.add?(stamp)
