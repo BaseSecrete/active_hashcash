@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Increase complexity logarithmicly to slowdown brute force attacks
 - Store stamps into the database instead of Redis
 - Fix ActiveHashcash::Store#add? by converting stamp to a string
 

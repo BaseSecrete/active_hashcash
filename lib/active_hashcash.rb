@@ -11,10 +11,12 @@ module ActiveHashcash
   end
 
   mattr_accessor :resource, instance_accessor: false
-  mattr_accessor :bits, instance_accessor: false, default: 20
-  mattr_accessor :date_format, instance_accessor: false, default: "%y%m%d"
 
-  # TODO: protect_from_brute_force bits: 20, exception: ActionController::InvalidAuthenticityToken, with: :handle_failed_hashcash
+  # This is base complexity.
+  # Consider lowering it to not exclude people with old and slow devices.
+  mattr_accessor :bits, instance_accessor: false, default: 16
+
+  mattr_accessor :date_format, instance_accessor: false, default: "%y%m%d"
 
   # Call me via a before_action when the form is submitted : `before_action :check_hashcash, only: :create`
   def check_hashcash
@@ -50,10 +52,15 @@ module ActiveHashcash
     ActiveHashcash.resource || request.host
   end
 
-  # Define the complexity, the higher the slower it is. Consider lowering this value to not exclude people with old and slow devices.
-  # On a decent laptop, it takes around 30 seconds for the JavaScript implementation to solve a 20 bits complexity and few seconds when it's 16.
+  # Returns the complexity, the higher the slower it is.
+  # Complexity is increased logarithmicly for each IP during the last 24H to slowdown brute force attacks.
+  # The minimun value returned is `ActiveHashcash.bits`.
   def hashcash_bits
-    ActiveHashcash.bits
+    if (previous_stamp_count = ActiveHashcash::Stamp.where(ip_address: hashcash_ip_address).where(created_at: 1.day.ago..).count) > 0
+      (ActiveHashcash.bits + Math.log2(previous_stamp_count)).floor
+    else
+      ActiveHashcash.bits
+    end
   end
 
   # Override if you want to rename the hashcash param.
