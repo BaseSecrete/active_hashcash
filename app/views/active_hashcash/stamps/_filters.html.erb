@@ -1,0 +1,21 @@
+<%= form_tag stamps_path, method: :get do %>
+  <%= label_tag :created_from, ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≥" %>
+  <%= date_field_tag :created_from, params[:created_from] %>
+
+  <%= label_tag :created_to, ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≤" %>
+  <%= date_field_tag :created_to, params[:created_to] %>
+
+  <%= label_tag :bits_from, ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≥" %>
+  <%= number_field_tag :bits_from, params[:bits_from] %>
+
+  <%= label_tag :bits_to, ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≤" %>
+  <%= number_field_tag :bits_to, params[:bits_to] %>
+
+  <%= label_tag :ip_address_starts_with, ActiveHashcash::Stamp::human_attribute_name(:ip_address) %>
+  <%= text_field_tag :ip_address_starts_with, params[:ip_address_starts_with] %>
+
+  <%= label_tag :request_path_starts_with, ActiveHashcash::Stamp::human_attribute_name(:request_path) %>
+  <%= text_field_tag :request_path_starts_with, params[:request_path_starts_with] %>
+
+  <%= submit_tag t("active_hashcash.submit_filter") %>
+<% end %>

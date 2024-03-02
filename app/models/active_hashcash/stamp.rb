@@ -4,6 +4,26 @@ module ActiveHashcash
   class Stamp < ApplicationRecord
     validates_presence_of :version, :bits, :date, :resource, :rand, :counter
 
+    scope :created_from, -> (date) { where(created_at: date..) }
+    scope :created_to, -> (date) { where(created_at: ..date) }
+
+    scope :bits_from, -> (value) { where(bits: value..) }
+    scope :bits_to, -> (value) { where(bits: ..value) }
+
+    scope :ip_address_starts_with, -> (string) { where("ip_address LIKE ?", sanitize_sql_like(string) + "%") }
+    scope :request_path_starts_with, -> (string) { where("request_path LIKE ?", sanitize_sql_like(string) + "%") }
+
+    def self.filter_by(params)
+      scope = all
+      scope = scope.request_path_starts_with(params[:request_path_starts_with]) if params[:request_path_starts_with].present?
+      scope = scope.ip_address_starts_with(params[:ip_address_starts_with]) if params[:ip_address_starts_with].present?
+      scope = scope.created_from(params[:created_from]) if params[:created_from].present?
+      scope = scope.created_to(params[:created_to]) if params[:created_to].present?
+      scope = scope.bits_from(params[:bits_from]) if params[:bits_from].present?
+      scope = scope.bits_to(params[:bits_to]) if params[:bits_to].present?
+      scope
+    end
+
     def self.spend(string, resource, bits, date, options = {})
       return false unless stamp = parse(string)
       stamp.attributes = options

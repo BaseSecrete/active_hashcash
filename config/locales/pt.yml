@@ -1,3 +1,4 @@
 pt:
   active_hashcash:
     waiting_label: "À espera de verificação ..."
+    submit_filter: Filtro

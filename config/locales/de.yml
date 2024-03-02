@@ -1,3 +1,4 @@
 de:
   active_hashcash:
     waiting_label: "Warten auf die Überprüfung ..."
+    submit_filter: Filtern
