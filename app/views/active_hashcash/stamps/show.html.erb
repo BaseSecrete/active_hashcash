@@ -1,0 +1,11 @@
+<div class="card">
+  <h3><%= @stamp %></h3>
+  <ul>
+    <li><%= @stamp.class.human_attribute_name(:created_at) %> <strong><%= l @stamp.created_at %></strong></li>
+    <li><%= @stamp.class.human_attribute_name(:resource) %> <strong><%= @stamp.resource %></strong></li>
+    <li><%= @stamp.class.human_attribute_name(:bits) %> <strong><%= @stamp.bits %></strong></li>
+    <li><%= @stamp.class.human_attribute_name(:ip_address) %> <strong><%= @stamp.ip_address %></strong></li>
+    <li><%= @stamp.class.human_attribute_name(:request_path) %> <strong><%= @stamp.request_path %></strong></li>
+    <li><%= @stamp.class.human_attribute_name(:context) %> <strong><%= @stamp.context %></strong></li>
+  </ul>
+</div>

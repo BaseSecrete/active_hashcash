@@ -9,7 +9,7 @@
   </tr>
   <% for stamp in @stamps %>
     <tr>
-      <td><%= stamp.created_at %></td>
+      <td><%= link_to stamp.created_at, stamp %></td>
       <td><%= stamp.ip_address %></td>
       <td><%= stamp.request_path %></td>
       <td><%= stamp.bits %></td>
