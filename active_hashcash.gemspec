@@ -6,8 +6,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Alexis Bernard"]
   spec.email         = ["alexis@basesecrete.com"]
 
-  spec.summary       = "ActiveHashcash protects your Rails application against brute force attacks, DoS and bots."
-  spec.description   = "ActiveHashcash protects your Rails application against brute force attacks, DoS and bots."
+  spec.summary       = "Protect Rails applications against bots and brute force attacks without annoying humans."
+  spec.description   = "Protect Rails applications against bots and brute force attacks without annoying humans."
   spec.homepage      = "https://github.com/BaseSecrete/active_hashcash"
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 2.4.0"
