@@ -28,8 +28,13 @@ Here is a [demo on a registration form](https://www.rorvswild.com/session) :
 ## Limitations
 
 The JavaScript implementation is 10 to 20 times slower than the official C version.
-It needs some work and knowledges to be optimised. Unfortunately, I'm not a JavaScript expert.
-Maybe you have good JS skills to optimize it ?
+I first used the SubtleCrypto API but it is surprisingly slower than a custom SHA1 implementation.
+Maybe I did in an unefficient way 2df3ba5?
+Another idea would be to compile the work algortihm in wasm.
+
+Unfortunately, I'm not a JavaScript expert.
+Maybe you have good JS skills to optimize it?
+Any help would be appreciate to better fights bots and brute for attacks!
 
 ## Installation
 
