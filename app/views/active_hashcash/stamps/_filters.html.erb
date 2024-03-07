@@ -1,21 +1,35 @@
 <%= form_tag stamps_path, method: :get do %>
-  <%= label_tag :created_from, ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≥" %>
-  <%= date_field_tag :created_from, params[:created_from] %>
+  <div class="grid-auto">
+    <div>
+      <%= label_tag :created_from, ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≥" %>
+      <%= date_field_tag :created_from, params[:created_from] %>
+    </div>
 
-  <%= label_tag :created_to, ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≤" %>
-  <%= date_field_tag :created_to, params[:created_to] %>
+    <div>
+      <%= label_tag :created_to, ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≤" %>
+      <%= date_field_tag :created_to, params[:created_to] %>
+    </div>
 
-  <%= label_tag :bits_from, ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≥" %>
-  <%= number_field_tag :bits_from, params[:bits_from] %>
+    <div>
+      <%= label_tag :bits_from, ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≥" %>
+      <%= number_field_tag :bits_from, params[:bits_from] %>
+    </div>
 
-  <%= label_tag :bits_to, ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≤" %>
-  <%= number_field_tag :bits_to, params[:bits_to] %>
+    <div>
+      <%= label_tag :bits_to, ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≤" %>
+      <%= number_field_tag :bits_to, params[:bits_to] %>
+    </div>
 
-  <%= label_tag :ip_address_starts_with, ActiveHashcash::Stamp::human_attribute_name(:ip_address) %>
-  <%= text_field_tag :ip_address_starts_with, params[:ip_address_starts_with] %>
+    <div>
+      <%= label_tag :ip_address_starts_with, ActiveHashcash::Stamp::human_attribute_name(:ip_address) %>
+      <%= text_field_tag :ip_address_starts_with, params[:ip_address_starts_with] %>
+    </div>
 
-  <%= label_tag :request_path_starts_with, ActiveHashcash::Stamp::human_attribute_name(:request_path) %>
-  <%= text_field_tag :request_path_starts_with, params[:request_path_starts_with] %>
+    <div>
+      <%= label_tag :request_path_starts_with, ActiveHashcash::Stamp::human_attribute_name(:request_path) %>
+      <%= text_field_tag :request_path_starts_with, params[:request_path_starts_with] %>
+    </div>
 
-  <%= submit_tag t("active_hashcash.submit_filter") %>
+    <%= submit_tag t("active_hashcash.submit_filter") %>
+  </div>
 <% end %>

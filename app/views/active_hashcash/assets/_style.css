@@ -158,3 +158,8 @@ body > footer .card p {
     min-width: 280px;
   }
 }
+
+details form {
+  padding: var(--space-3x) ;
+  padding-top: 0;
+}
