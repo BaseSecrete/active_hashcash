@@ -1,23 +1,27 @@
 <%= form_tag stamps_path, method: :get do %>
   <div class="grid-auto">
-    <div>
-      <%= label_tag :created_from, ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≥" %>
-      <%= date_field_tag :created_from, params[:created_from] %>
+    <div role="group">
+      <%= label_tag :created_from do %>
+        <%= ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≥" %>
+        <%= date_field_tag :created_from, params[:created_from] %>
+      <% end %>
+
+      <%= label_tag :created_from do %>
+        <%= ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≤" %>
+        <%= date_field_tag :created_to, params[:created_to] %>
+      <% end %>
     </div>
 
-    <div>
-      <%= label_tag :created_to, ActiveHashcash::Stamp::human_attribute_name(:created_at) + " ≤" %>
-      <%= date_field_tag :created_to, params[:created_to] %>
-    </div>
+    <div role="group">
+      <%= label_tag :bits_from do %>
+        <%= ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≥" %>
+        <%= number_field_tag :bits_from, params[:bits_from] %>
+      <% end %>
 
-    <div>
-      <%= label_tag :bits_from, ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≥" %>
-      <%= number_field_tag :bits_from, params[:bits_from] %>
-    </div>
-
-    <div>
-      <%= label_tag :bits_to, ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≤" %>
-      <%= number_field_tag :bits_to, params[:bits_to] %>
+      <%= label_tag :bits_to do %>
+        <%= ActiveHashcash::Stamp::human_attribute_name(:bits) + " ≤" %>
+        <%= number_field_tag :bits_to, params[:bits_to] %>
+      <% end %>
     </div>
 
     <div>
