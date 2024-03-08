@@ -1,0 +1,12 @@
+<% 10.times do |i| %>
+stamp<%= i %>:
+  version: 1
+  bits: 20
+  date: <%= Date.today %>
+  resource: "test"
+  ext: ""
+  rand: <%= rand(999_999) %>
+  counter: <%= rand(999_999) %>
+  request_path: "/session"
+  ip_address: "1.2.3.4"
+<% end %>

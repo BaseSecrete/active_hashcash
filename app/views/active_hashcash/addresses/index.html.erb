@@ -1,0 +1,17 @@
+<details>
+  <summary>Filters</summary>
+  <%= render "active_hashcash/stamps/filters" %>
+</details>
+
+<table>
+  <tr>
+    <th><%= ActiveHashcash::Stamp.human_attribute_name(:ip_address) %></th>
+    <th><%= "Count" %></th>
+  </tr>
+  <% for (address, count) in @addresses %>
+    <tr>
+      <td><%= link_to address, stamps_path(ip_address_starts_with: address) %></td>
+      <td><%= number_with_delimiter count %></td>
+    </tr>
+  <% end %>
+</table>

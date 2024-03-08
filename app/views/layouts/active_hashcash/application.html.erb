@@ -11,7 +11,10 @@
 <body>
   <header>
     <nav aria-label="site">
-      <%= link_to "Active Hashcash", root_path %>
+      <ul role="menu" aria-label="Elements">
+        <li role="none"><%= link_to ActiveHashcash::Stamp.model_name.human.pluralize, stamps_path %></li>
+        <li role="none"><%= link_to ActiveHashcash::Stamp.human_attribute_name(:ip_address).pluralize, addresses_path %></li>
+      </ul>
     </nav>
   </header>
 
@@ -20,6 +23,8 @@
   </main>
 
   <footer>
+    Made by <a href="https://www.rorvswild.com">RorVsWild</a> |
+    <a href="https://github.com/BaseSecrete/active_hashcash">Source code</a>
   </footer>
 </body>
 </html>
