@@ -5,6 +5,9 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
+  <%= tag.link rel: "icon", href: asset_path(:favicon, format: :ico), sizes: "32x32" %>
+  <%= tag.link rel: "icon", href: asset_path(:favicon, format: :svg), type: "image/svg+xml" %>
+
   <%= tag.link rel: "stylesheet", href: asset_path(:ariato, format: :css) %>
   <%= tag.link rel: "stylesheet", href: asset_path(:application, format: :css) %>
 </head>
@@ -12,8 +15,9 @@
   <header>
     <nav aria-label="site">
       <ul role="menu" aria-label="Elements">
+        <li role="none" class="logo"><%= link_to(root_path) { render partial: "/active_hashcash/assets/logo", formats: [:svg] } %></li>
         <li role="none"><%= link_to ActiveHashcash::Stamp.model_name.human.pluralize, stamps_path %></li>
-        <li role="none"><%= link_to ActiveHashcash::Stamp.human_attribute_name(:ip_address).pluralize, addresses_path %></li>
+        <li role="none"><%= link_to "Top IP addresses", addresses_path %></li>
       </ul>
     </nav>
   </header>

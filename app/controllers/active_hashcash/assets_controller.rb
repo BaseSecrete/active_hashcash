@@ -2,10 +2,17 @@ module ActiveHashcash
   class AssetsController < ApplicationController
     protect_from_forgery except: :show
 
+    Mime::Type.register "image/x-icon", :ico
+
     def show
-      if endpoints.include?(File.basename(request.path))
+      if endpoints.include?(file_name = File.basename(request.path))
+        file_path = ActiveHashcash::Engine.root.join / "app/views/active_hashcash/assets" / file_name
+        if File.exists?("#{file_path}.erb")
+          render(params[:id], mime_type: mime_type)
+        else
+          render(file: file_path)
+        end
         expires_in(1.day, public: true)
-        render(params[:id], mime_type: mime_type)
       else
         raise ActionController::RoutingError.new
       end
