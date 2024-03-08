@@ -6,7 +6,7 @@
 <table>
   <tr>
     <th><%= ActiveHashcash::Stamp.human_attribute_name(:ip_address) %></th>
-    <th><%= "Count" %></th>
+    <th><%= ActiveHashcash::Stamp.model_name.human.pluralize %></th>
   </tr>
   <% for (address, count) in @addresses %>
     <tr>

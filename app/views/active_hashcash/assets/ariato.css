@@ -758,6 +758,7 @@ pre {
 }
 form {
   overflow: visible;
+  width: 100%;;
   & > * + * { margin-top: var(--space-3x); }
   & *[hidden] { margin: 0; }
 }
@@ -766,7 +767,6 @@ fieldset {
   padding: 0 var(--space-3x) var(--space-3x);
   margin-inline: 0;
   border: 1px solid var(--color-grey-50);
-  display: block;
   overflow: visible;
   & > * + * { margin-top: var(--space-3x); }
 }
@@ -1295,17 +1295,6 @@ th.is-right,
 td.is-right {
   text-align: right;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 /*******************************************/
 /*  ariato extra                           */
@@ -2029,25 +2018,36 @@ a.avatar {
     margin: 0 0 var(--space-3x, 1em);
     padding: 0;
   }
-}
 
-li[role="menuitem"] {
-  display: flex;
-  flex-direction: column;
-}
+  & li[role="menuitem"] {
+    display: flex;
+    flex-direction: column;
+  }
 
-a[role="menuitem"]:not(.button) {
-  padding: 0 24px;
-  margin: 0;
-  font-size: inherit;
-  text-decoration: none;
-  color: var(--color-grey-700);
-  display: flex;
-  align-items: center;
-  &:hover { color: var(--color-grey-800); }
-  &[aria-current="true"] {
-    background: var(--color-grey-100);
-    color: var(--color-info-700);
+  & a[role="menuitem"]:not(.button) {
+    padding: 0 24px;
+    margin: 0;
+    font-size: inherit;
+    text-decoration: none;
+    color: var(--color-grey-700);
+    display: flex;
+    align-items: center;
+    &:hover { color: var(--color-grey-800); }
+    &[aria-current="true"] {
+      background: var(--color-grey-100);
+      color: var(--color-info-700);
+    }
+  }
+
+  &.is-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2x);
+    padding: 0;
+
+    & a[role="menuitem"]:not(.button) {
+      padding: 0;
+    }
   }
 }
 .menubutton {

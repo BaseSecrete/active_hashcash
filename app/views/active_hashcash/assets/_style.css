@@ -92,14 +92,6 @@ section {
   width: calc(100% + 48px);
 }
 
-tr td:first-of-type {
-  padding: 12px 0px 12px 24px;
-}
-
-tr td:last-of-type {
-  padding: 12px 24px 12px 0;
-}
-
 td a {
   word-break: break-word;
 }

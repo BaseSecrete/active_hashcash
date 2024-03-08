@@ -14,21 +14,23 @@
 <body>
   <header>
     <nav aria-label="site">
-      <ul role="menu" aria-label="Elements">
+      <ul role="menu" aria-label="Elements" class="is-horizontal">
         <li role="none" class="logo"><%= link_to(root_path) { render partial: "/active_hashcash/assets/logo", formats: [:svg] } %></li>
-        <li role="none"><%= link_to ActiveHashcash::Stamp.model_name.human.pluralize, stamps_path %></li>
-        <li role="none"><%= link_to "Top IP addresses", addresses_path %></li>
+        <li role="none"><%= link_to_unless_current ActiveHashcash::Stamp.model_name.human.pluralize, stamps_path %></li>
+        <li role="none"><%= link_to_unless_current "Top IP addresses", addresses_path %></li>
       </ul>
     </nav>
   </header>
 
-  <main>
+  <main class="card">
     <%= yield %>
   </main>
 
   <footer>
     Made by <a href="https://www.rorvswild.com">RorVsWild</a> |
-    <a href="https://github.com/BaseSecrete/active_hashcash">Source code</a>
+    <a href="https://github.com/BaseSecrete/active_hashcash">Source code</a> |
+    <a href="https://twitter.com/rorvswild">Twitter</a> |
+    <a href="https://ruby.social/@rorvswild">Mastodon</a> |
   </footer>
 </body>
 </html>

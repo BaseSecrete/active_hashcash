@@ -25,6 +25,12 @@ Here is a [demo on a registration form](https://www.rorvswild.com/session) :
 
 ![Active Hashcash GIF preview](demo.gif)
 
+---
+
+<img align="left" height="24px" src="rorvswild_logo.jpg" alt="RorVsWild logo"/>Made by <a href="https://www.rorvswild.com">RorVsWild</a>, performances & exceptions monitoring for Ruby on Rails applications.
+
+---
+
 ## Limitations
 
 The JavaScript implementation is 10 to 20 times slower than the official C version.
@@ -159,5 +165,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 Made by Alexis Bernard at [Base Secrète](https://basesecrete.com).
-
-Rails developer? Check out [RoRvsWild](https://rorvswild.com), our Ruby on Rails application monitoring tool.

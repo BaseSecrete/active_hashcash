@@ -1,22 +1,21 @@
-<div class="card">
-  <h3><%= @stamp %></h3>
-  <dl>
-    <dt><%= @stamp.class.human_attribute_name(:created_at) %></dt>
-    <dd><%= l @stamp.created_at %></dd>
 
-    <dt><%= @stamp.class.human_attribute_name(:resource) %></dt>
-    <dd><%= @stamp.resource %></dd>
+<h3><%= @stamp %></h3>
+<dl>
+  <dt><%= @stamp.class.human_attribute_name(:created_at) %></dt>
+  <dd><%= l @stamp.created_at %></dd>
 
-    <dt><%= @stamp.class.human_attribute_name(:bits) %></dt>
-    <dd><%= @stamp.bits %></dd>
+  <dt><%= @stamp.class.human_attribute_name(:resource) %></dt>
+  <dd><%= @stamp.resource %></dd>
 
-    <dt><%= @stamp.class.human_attribute_name(:ip_address) %></dt>
-    <dd><%= @stamp.ip_address %></dd>
+  <dt><%= @stamp.class.human_attribute_name(:bits) %></dt>
+  <dd><%= @stamp.bits %></dd>
 
-    <dt><%= @stamp.class.human_attribute_name(:request_path) %></dt>
-    <dd><%= @stamp.request_path %></dd>
+  <dt><%= @stamp.class.human_attribute_name(:ip_address) %></dt>
+  <dd><%= @stamp.ip_address %></dd>
 
-    <dt><%= @stamp.class.human_attribute_name(:context) %></dt>
-    <dd><%= @stamp.context %></dd>
-  </dl>
-</div>
+  <dt><%= @stamp.class.human_attribute_name(:request_path) %></dt>
+  <dd><%= @stamp.request_path %></dd>
+
+  <dt><%= @stamp.class.human_attribute_name(:context) %></dt>
+  <dd><%= @stamp.context %></dd>
+</dl>
