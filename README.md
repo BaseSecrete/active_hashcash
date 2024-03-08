@@ -31,17 +31,6 @@ Here is a [demo on a registration form](https://www.rorvswild.com/session) :
 
 ---
 
-## Limitations
-
-The JavaScript implementation is 10 to 20 times slower than the official C version.
-I first used the SubtleCrypto API but it is surprisingly slower than a custom SHA1 implementation.
-Maybe I did in an unefficient way 2df3ba5?
-Another idea would be to compile the work algortihm in wasm.
-
-Unfortunately, I'm not a JavaScript expert.
-Maybe you have good JS skills to optimize it?
-Any help would be appreciate to better fights bots and brute for attacks!
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -156,9 +145,20 @@ You can change the minimum complexity, either with `ActiveHashcash.bits = 20` or
 Since version 0.3.0, the complexity increases with the number of stamps spent during le last 24H from the same IP address.
 Thus it becomes very efficient to slow down brute force attacks.
 
+## Limitations
+
+The JavaScript implementation is 10 to 20 times slower than the official C version.
+I first used the SubtleCrypto API but it is surprisingly slower than a custom SHA1 implementation.
+Maybe I did in an unefficient way 2df3ba5?
+Another idea would be to compile the work algortihm in wasm.
+
+Unfortunately, I'm not a JavaScript expert.
+Maybe you have good JS skills to optimize it?
+Any help would be appreciate to better fights bots and brute for attacks!
+
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/active_hashcash.
+Bug reports and pull requests are welcome on GitHub at https://github.com/BaseSecrete/active_hashcash.
 
 ## License
 
