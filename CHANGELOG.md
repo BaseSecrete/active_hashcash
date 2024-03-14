@@ -1,9 +1,9 @@
 # Changelog of ActiveHashcash
 
-## [Unreleased]
+## 0.3.0 - 2024-03-14
 
-- Increase complexity logarithmicly to slowdown brute force attacks
-- Add mountable dashboard to list latest stamps
+- Increase complexity automatically to slowdown brute force attacks
+- Add mountable dashboard to list latest stamps and most frequent IP addresses
 - Store stamps into the database instead of Redis
 - Fix ActiveHashcash::Store#add? by converting stamp to a string
 

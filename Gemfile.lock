@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    active_hashcash (0.2.0)
+    active_hashcash (0.3.0)
       rails (>= 5.2.0)
 
 GEM
@@ -164,7 +164,7 @@ GEM
       rake (>= 12.2)
       thor (~> 1.0, >= 1.2.2)
       zeitwerk (~> 2.6)
-    rake (13.0.6)
+    rake (13.1.0)
     rdoc (6.5.0)
       psych (>= 4.0.0)
     reline (0.3.9)

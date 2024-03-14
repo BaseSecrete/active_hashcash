@@ -67,8 +67,7 @@ end
 To customize some behaviour, you can override most of the methods which begins with `hashcash_`.
 Simply have a look to `active_hashcash.rb`.
 
-From versiom 0.3.0, spent stamps are now stored into a relational database instead of Redis.
-This prevents from spending stamp more than once.
+Stamps are stored into into the database to prevents from spending them more than once.
 You must run a migration:
 
 ```
@@ -76,10 +75,12 @@ rails active_hashcash:install:migrations
 rails db:migrate
 ```
 
-## Dashboard
+### Dashboard
 
 There is a mountable dahsboard which allows to see all spent stamps.
 It's not mandatory, but useful for monitoring purpose.
+
+![ActiveHashcash dashboard](active_hashcash_dashboard.png "ActiveHashcash dashboard")
 
 ```ruby
 # config/routes.rb
@@ -125,7 +126,6 @@ authenticate :user, -> (u) { u.admin? } do # Supposing there is a User#admin? me
 end
 ```
 
-
 ### Before version 0.3.0
 
 You must have Redis in order to prevent double spent stamps. Otherwise it will be useless.
@@ -134,13 +134,20 @@ You can also manually set the URL with `ActiveHashcash.redis_url = redis://user:
 
 You should call `ActiveHashcash::Store#clean` once a day, to remove expired stamps.
 
+To upgrade from 0.2.0 you must run the migration :
+
+```
+rails active_hashcash:install:migrations
+rails db:migrate
+```
+
 ## Complexity
 
 Complexity is the most important parameter. By default its value is 20 and requires most of the time 5 to 20 seconds to be solved on a decent laptop.
 The user won't wait that long, since he needs to fill the form while the problem is solving.
 Howevever, if your application includes people with slow and old devices, then consider lowering this value, to 16 or 18.
 
-You can change the minimum complexity, either with `ActiveHashcash.bits = 20` or by overriding the method `hashcash_bits` in you controller.
+You can change the minimum complexity with `ActiveHashcash.bits = 20`.
 
 Since version 0.3.0, the complexity increases with the number of stamps spent during le last 24H from the same IP address.
 Thus it becomes very efficient to slow down brute force attacks.
@@ -150,7 +157,7 @@ Thus it becomes very efficient to slow down brute force attacks.
 The JavaScript implementation is 10 to 20 times slower than the official C version.
 I first used the SubtleCrypto API but it is surprisingly slower than a custom SHA1 implementation.
 Maybe I did in an unefficient way 2df3ba5?
-Another idea would be to compile the work algortihm in wasm.
+Another idea would be to compile the work algorithm in wasm.
 
 Unfortunately, I'm not a JavaScript expert.
 Maybe you have good JS skills to optimize it?
@@ -164,4 +171,4 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/BaseSe
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
-Made by Alexis Bernard at [Base Secrète](https://basesecrete.com).
+Made by Alexis Bernard at [RorVsWild](https://www.rorvswild.com).
