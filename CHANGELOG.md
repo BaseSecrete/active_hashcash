@@ -1,6 +1,6 @@
 # Changelog of ActiveHashcash
 
-## Unrelease
+## 0.3.1 - 2024-04-04
 
 - Fix gem spec list files
 
