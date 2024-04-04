@@ -1,5 +1,9 @@
 # Changelog of ActiveHashcash
 
+## Unrelease
+
+- Fix gem spec list files
+
 ## 0.3.0 - 2024-03-14
 
 - Increase complexity automatically to slowdown brute force attacks
