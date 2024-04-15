@@ -77,7 +77,7 @@ rails db:migrate
 
 ### Dashboard
 
-There is a mountable dahsboard which allows to see all spent stamps.
+There is a mountable dashboard which allows to see all spent stamps.
 It's not mandatory, but useful for monitoring purpose.
 
 ![ActiveHashcash dashboard](active_hashcash_dashboard.png "ActiveHashcash dashboard")
