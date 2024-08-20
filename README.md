@@ -45,6 +45,18 @@ Require hashcash from your JavaScript manifest.
 //= require hashcash
 ```
 
+OR
+
+Link hashcash to your JavaScript manifest and load it to your head.
+
+```js
+//= link hashcash.js
+```
+
+```erb
+<%= javascript_include_tag "hashcash", "data-turbo-track": "reload", defer: true %>
+```
+
 Add a Hashcash hidden field into the form you want to protect.
 
 ```erb

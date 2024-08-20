@@ -33,8 +33,7 @@ module ActiveHashcash
     end
 
     def self.parse(string)
-      return unless string
-      args = string.split(":")
+      args = string.to_s.split(":")
       return if args.size != 7
       new(version: args[0], bits: args[1], date: Date.strptime(args[2], ActiveHashcash.date_format), resource: args[3], ext: args[4], rand: args[5], counter: args[6])
     end
