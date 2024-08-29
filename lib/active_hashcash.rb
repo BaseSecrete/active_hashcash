@@ -4,8 +4,6 @@ require "active_hashcash/engine"
 module ActiveHashcash
   extend ActiveSupport::Concern
 
-  include ActionView::Helpers::FormTagHelper
-
   included do
     helper_method :hashcash_hidden_field_tag
   end
@@ -87,6 +85,6 @@ module ActiveHashcash
   # Unless you need something really special, you should not need to override this method.
   def hashcash_hidden_field_tag(name = :hashcash)
     options = {resource: hashcash_resource, bits: hashcash_bits, waiting_message: hashcash_waiting_message}
-    hidden_field_tag(name, "", "data-hashcash" => options.to_json)
+    view_context.hidden_field_tag(name, "", "data-hashcash" => options.to_json)
   end
 end
