@@ -1,5 +1,10 @@
 # Changelog of ActiveHashcash
 
+## 0.3.2 (2024-08-29)
+
+- Fix methods conflitc by not including ActionView::Helpers::FormTagHelper
+- Sanitize params by forcing as a String
+
 ## 0.3.1 - 2024-04-04
 
 - Fix gem spec list files
