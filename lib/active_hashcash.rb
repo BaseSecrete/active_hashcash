@@ -16,6 +16,8 @@ module ActiveHashcash
 
   mattr_accessor :date_format, instance_accessor: false, default: "%y%m%d"
 
+  mattr_accessor :base_controller_class, default: "ActionController::Base"
+
   # Call me via a before_action when the form is submitted : `before_action :check_hashcash, only: :create`
   def check_hashcash
     attrs = {
