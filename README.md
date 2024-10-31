@@ -145,6 +145,11 @@ Rails.application.configure do
   ActiveHashcash.base_controller_class = "AdminController"
 end
 ```
+or in your environment config or `application.rb`:
+
+```ruby
+config.active_hashcash.base_controller_class = "AdminController"
+```
 
 ### Before version 0.3.0
 
