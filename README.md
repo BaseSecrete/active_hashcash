@@ -138,6 +138,12 @@ authenticate :user, -> (u) { u.admin? } do # Supposing there is a User#admin? me
 end
 ```
 
+By default ActiveHashcash will extend `ActionController::Base`, but you can change it to any controller you want.
+
+```ruby
+ActiveHashcash.base_controller_class = "AdminController"
+```
+
 ### Before version 0.3.0
 
 You must have Redis in order to prevent double spent stamps. Otherwise it will be useless.
