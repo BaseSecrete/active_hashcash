@@ -7,7 +7,7 @@ module ActiveHashcash
     def show
       if endpoints.include?(file_name = File.basename(request.path))
         file_path = ActiveHashcash::Engine.root.join / "app/views/active_hashcash/assets" / file_name
-        if File.exists?("#{file_path}.erb")
+        if File.exist?("#{file_path}.erb")
           render(params[:id], mime_type: mime_type)
         else
           render(file: file_path)
