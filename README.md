@@ -141,7 +141,9 @@ end
 By default ActiveHashcash will extend `ActionController::Base`, but you can change it to any controller you want.
 
 ```ruby
-ActiveHashcash.base_controller_class = "AdminController"
+Rails.application.configure do
+  ActiveHashcash.base_controller_class = "AdminController"
+end
 ```
 
 ### Before version 0.3.0
