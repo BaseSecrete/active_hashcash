@@ -138,6 +138,15 @@ authenticate :user, -> (u) { u.admin? } do # Supposing there is a User#admin? me
 end
 ```
 
+By default ActiveHashcash will extend `ActionController::Base`, but you can change it to any controller you want.
+
+```ruby
+# config/initializers/active_hashcash.rb
+Rails.application.configure do
+  ActiveHashcash.base_controller_class = "AdminController"
+end
+```
+
 ### Before version 0.3.0
 
 You must have Redis in order to prevent double spent stamps. Otherwise it will be useless.

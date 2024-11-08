@@ -1,5 +1,9 @@
 # Changelog of ActiveHashcash
 
+## Unreleased
+
+- Added `base_controller_class` configuration option to allow specifying a custom base controller for the ActiveHashcash dashboard, enhancing flexibility in diverse application architectures.
+
 ## 0.3.2 (2024-08-29)
 
 - Fix methods conflitc by not including ActionView::Helpers::FormTagHelper
