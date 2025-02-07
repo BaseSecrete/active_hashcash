@@ -1,7 +1,7 @@
 // http://www.hashcash.org/docs/hashcash.html
 // <input type="hiden" name="hashcash" data-hashcash="{resource: 'site.example', bits: 16}"/>
-Hashcash = function(input) {
-  options = JSON.parse(input.getAttribute("data-hashcash"))
+function Hashcash(input) {
+  var options = JSON.parse(input.getAttribute("data-hashcash"))
   Hashcash.disableParentForm(input, options)
   input.dispatchEvent(new CustomEvent("hashcash:mint", {bubbles: true}))
 
@@ -15,9 +15,9 @@ Hashcash = function(input) {
 Hashcash.setup = function() {
   if (document.readyState != "loading") {
     var input = document.querySelector("input#hashcash")
-    input && new Hashcash(input)
+    input && !input.hasAttribute("data-controller") && new Hashcash(input)
   } else
-    document.addEventListener("DOMContentLoaded", Hashcash.setup )
+    document.addEventListener("DOMContentLoaded", Hashcash.setup)
 }
 
 Hashcash.disableParentForm = function(input, options) {
