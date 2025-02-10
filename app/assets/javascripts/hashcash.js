@@ -1,13 +1,13 @@
 // http://www.hashcash.org/docs/hashcash.html
 // <input type="hiden" name="hashcash" data-hashcash="{resource: 'site.example', bits: 16}"/>
 function Hashcash(input) {
-  var options = JSON.parse(input.getAttribute("data-hashcash"))
-  Hashcash.disableParentForm(input, options)
+  Hashcash.disableParentForm(input)
   input.dispatchEvent(new CustomEvent("hashcash:mint", {bubbles: true}))
-
-  Hashcash.mint(options.resource, options, function(stamp) {
+  var resource = input.dataset.hashcashResource
+  var options = {bits: input.dataset.hashcashBits}
+  Hashcash.mint(resource, options, function(stamp) {
     input.value = stamp.toString()
-    Hashcash.enableParentForm(input, options)
+    Hashcash.enableParentForm(input)
     input.dispatchEvent(new CustomEvent("hashcash:minted", {bubbles: true, detail: {stamp: stamp}}))
   })
 }
@@ -20,15 +20,15 @@ Hashcash.setup = function() {
     document.addEventListener("DOMContentLoaded", Hashcash.setup)
 }
 
-Hashcash.disableParentForm = function(input, options) {
+Hashcash.disableParentForm = function(input) {
   input.form.querySelectorAll("[type=submit]").forEach(function(submit) {
     submit.originalValue = submit.value
-    options["waiting_message"] && (submit.value = options["waiting_message"])
+    input.dataset.hashcashWaitingMessage && (submit.value = input.dataset.hashcashWaitingMessage)
     submit.disabled = true
   })
 }
 
-Hashcash.enableParentForm = function(input, options) {
+Hashcash.enableParentForm = function(input) {
   input.form.querySelectorAll("[type=submit]").forEach(function(submit) {
     submit.originalValue && (submit.value = submit.originalValue)
     submit.disabled = null

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "active_hashcash/version"
 require "active_hashcash/engine"
 
@@ -86,7 +88,11 @@ module ActiveHashcash
   # Call it inside the form that have to be protected and don't forget to initialize the JavaScript Hascash.setup().
   # Unless you need something really special, you should not need to override this method.
   def hashcash_hidden_field_tag(name = :hashcash, html_options = {})
-    options = {resource: hashcash_resource, bits: hashcash_bits, waiting_message: hashcash_waiting_message}
-    view_context.hidden_field_tag(name, "", {"data-hashcash" => options.to_json}.merge(html_options))
+    default_options = {
+      "data-hashcash-resource" => hashcash_resource,
+      "data-hashcash-bits" => hashcash_bits,
+      "data-hashcash-waiting-message" => hashcash_waiting_message,
+    }
+    view_context.hidden_field_tag(name, "", default_options.merge(html_options))
   end
 end
