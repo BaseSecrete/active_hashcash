@@ -10,6 +10,9 @@ Hashcash = function(input) {
     Hashcash.enableParentForm(input, options)
     input.dispatchEvent(new CustomEvent("hashcash:minted", {bubbles: true, detail: {stamp: stamp}}))
   })
+
+  this.input = input
+  input.form.addEventListener("submit", this.preventFromAutoSubmitFromPasswordManagers.bind(this))
 }
 
 Hashcash.setup = function() {
@@ -45,6 +48,10 @@ Hashcash.enableParentForm = function(input, options) {
     Hashcash.setSubmitText(submit, submit.originalValue)
     submit.disabled = null
   })
+}
+
+Hashcash.prototype.preventFromAutoSubmitFromPasswordManagers = function(event) {
+  this.input.value == "" && event.preventDefault()
 }
 
 Hashcash.default = {

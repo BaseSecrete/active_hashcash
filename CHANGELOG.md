@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Prevent from password managers to submit the form before the stamp has been computed
 - Added support for the "button" submit form tag
 - Added Catalan language
 - Added `base_controller_class` configuration option to allow specifying a custom base controller for the ActiveHashcash dashboard, enhancing flexibility in diverse application architectures.
