@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Prevent from password managers to submit the form before the stamp has been computed
 - Added `base_controller_class` configuration option to allow specifying a custom base controller for the ActiveHashcash dashboard, enhancing flexibility in diverse application architectures.
 
 ## 0.3.2 (2024-08-29)
