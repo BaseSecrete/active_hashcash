@@ -20,17 +20,29 @@ Hashcash.setup = function() {
     document.addEventListener("DOMContentLoaded", Hashcash.setup )
 }
 
+Hashcash.setSubmitText = function(submit, text) {
+  if (!text) {
+    return
+  }
+  if (submit.tagName == "BUTTON") {
+    !submit.originalValue && (submit.originalValue = submit.innerHTML)
+    submit.innerHTML = text
+  } else {
+    !submit.originalValue && (submit.originalValue = submit.value)
+    submit.value = text
+  }
+}
+
 Hashcash.disableParentForm = function(input, options) {
   input.form.querySelectorAll("[type=submit]").forEach(function(submit) {
-    submit.originalValue = submit.value
-    options["waiting_message"] && (submit.value = options["waiting_message"])
+    Hashcash.setSubmitText(submit, options["waiting_message"])
     submit.disabled = true
   })
 }
 
 Hashcash.enableParentForm = function(input, options) {
   input.form.querySelectorAll("[type=submit]").forEach(function(submit) {
-    submit.originalValue && (submit.value = submit.originalValue)
+    Hashcash.setSubmitText(submit, submit.originalValue)
     submit.disabled = null
   })
 }

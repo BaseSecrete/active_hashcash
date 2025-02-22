@@ -8,7 +8,7 @@ Hashcash is proof-of-work algorithm, invented by Adam Back in 1997, to protect s
 ActiveHashcash is an easy way to protect any Rails application against brute force attacks and bots.
 
 The idea is to force clients to spend some time to solve a hard problem that is very easy to verify for the server.
-We have developped ActiveHashcash after seeing brute force attacks against our Rails application monitoring service [RorVsWild](https://rorvswild.com).
+We have developed ActiveHashcash after seeing brute force attacks against our Rails application monitoring service [RorVsWild](https://rorvswild.com).
 
 ActiveHashcash is ideal to set up on sensitive forms such as login and registration.
 While the user is filling the form, the problem is solved in JavaScript and set the result into a hidden input text.
@@ -150,7 +150,7 @@ end
 ### Before version 0.3.0
 
 You must have Redis in order to prevent double spent stamps. Otherwise it will be useless.
-It automatically tries to connect with the environement variables `ACTIVE_HASHCASH_REDIS_URL` or `REDIS_URL`.
+It automatically tries to connect with the environment variables `ACTIVE_HASHCASH_REDIS_URL` or `REDIS_URL`.
 You can also manually set the URL with `ActiveHashcash.redis_url = redis://user:password@localhost:6379`.
 
 You should call `ActiveHashcash::Store#clean` once a day, to remove expired stamps.
@@ -166,7 +166,7 @@ rails db:migrate
 
 Complexity is the most important parameter. By default its value is 20 and requires most of the time 5 to 20 seconds to be solved on a decent laptop.
 The user won't wait that long, since he needs to fill the form while the problem is solving.
-Howevever, if your application includes people with slow and old devices, then consider lowering this value, to 16 or 18.
+However, if your application includes people with slow and old devices, then consider lowering this value, to 16 or 18.
 
 You can change the minimum complexity with `ActiveHashcash.bits = 20`.
 
@@ -177,7 +177,7 @@ Thus it becomes very efficient to slow down brute force attacks.
 
 The JavaScript implementation is 10 to 20 times slower than the official C version.
 I first used the SubtleCrypto API but it is surprisingly slower than a custom SHA1 implementation.
-Maybe I did in an unefficient way 2df3ba5?
+Maybe I did in an inefficient way 2df3ba5?
 Another idea would be to compile the work algorithm in wasm.
 
 Unfortunately, I'm not a JavaScript expert.
