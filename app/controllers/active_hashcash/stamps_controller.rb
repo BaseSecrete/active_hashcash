@@ -1,5 +1,5 @@
 module ActiveHashcash
-  class StampsController < ApplicationController
+  class StampsController < ApplicationController # :nodoc:
     def index
       @stamps = Stamp.filter_by(params).order(created_at: :desc).limit(1000)
     end

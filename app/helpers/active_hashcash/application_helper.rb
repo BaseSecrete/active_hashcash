@@ -1,4 +1,4 @@
 module ActiveHashcash
-  module ApplicationHelper
+  module ApplicationHelper # :nodoc:
   end
 end

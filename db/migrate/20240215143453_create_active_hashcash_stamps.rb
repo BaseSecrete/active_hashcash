@@ -1,3 +1,10 @@
+# Successful hashcash stamp are stored in the database.
+# This migration creates the table for the model ActiveHashcash::Stamp.
+# Run the following commands to add it to your Rails application:
+#
+#   rails active_hashcash:install:migrations
+#   rails db:migrate
+#
 class CreateActiveHashcashStamps < ActiveRecord::Migration[5.2]
   def change
     create_table :active_hashcash_stamps do |t|

@@ -1,4 +1,4 @@
 module ActiveHashcash
-  module StampsHelper
+  module StampsHelper # :nodoc:
   end
 end

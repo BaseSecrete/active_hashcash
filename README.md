@@ -1,8 +1,8 @@
 # ActiveHashcash
 
-<img align="right" width="200px" src="logo.png" alt="Active Hashcash logo"/>
+Protect Rails applications against bots and brute force attacks without annoying humans.
 
-ActiveHashcash protects Rails applications against bots and brute force attacks without annoying humans.
+<div><img align="right" width="200px" src="logo.png" alt="Active Hashcash logo"/></div>
 
 Hashcash is proof-of-work algorithm, invented by Adam Back in 1997, to protect systems against denial of service attacks.
 ActiveHashcash is an easy way to protect any Rails application against brute force attacks and bots.
@@ -27,45 +27,27 @@ Here is a [demo on a registration form](https://www.rorvswild.com/session) :
 
 ---
 
-<img align="left" height="24px" src="rorvswild_logo.jpg" alt="RorVsWild logo"/>Made by <a href="https://www.rorvswild.com">RorVsWild</a>, performances & exceptions monitoring for Ruby on Rails applications.
+<div><img align="left" height="24px" src="rorvswild_logo.jpg" alt="RorVsWild logo"/>Made by <a href="https://www.rorvswild.com">RorVsWild</a>, performances & exceptions monitoring for Ruby on Rails applications.</div>
 
 ---
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's Gemfile and run `bundle install`:
 
 ```ruby
 gem "active_hashcash"
 ```
 
-Require hashcash from your JavaScript manifest.
+Stamps are stored into the database to prevents from spending them more than once.
+You must install and run a migration:
 
-```js
-//= require hashcash
+```
+rails active_hashcash:install:migrations
+rails db:migrate
 ```
 
-OR
-
-Link hashcash to your JavaScript manifest and load it to your head.
-
-```js
-//= link hashcash.js
-```
-
-```erb
-<%= javascript_include_tag "hashcash", "data-turbo-track": "reload", defer: true %>
-```
-
-Add a Hashcash hidden field into the form you want to protect.
-
-```erb
-<form>
-  <%= hashcash_hidden_field_tag %>
-</form>
-```
-
-Then you have to define a `before_action :check_hashcash` in you controller.
+Then you have to include ActiveHashcash and add a `before_action :check_hashcash` in you controller:
 
 ```ruby
 class SessionController < ApplicationController
@@ -76,16 +58,37 @@ class SessionController < ApplicationController
 end
 ```
 
-To customize some behaviour, you can override most of the methods which begins with `hashcash_`.
-Simply have a look to `active_hashcash.rb`.
+The action `SessionController#create` is now protected.
+The final step is compute the hashcash from the client side.
+Start by adding a Hashcash hidden field into the form you want to protect.
 
-Stamps are stored into into the database to prevents from spending them more than once.
-You must run a migration:
+```erb
+<form>
+  <%= hashcash_hidden_field_tag %>
+</form>
+```
 
+Require hashcash from your JavaScript manifest.
+
+```js
+//= require hashcash
 ```
-rails active_hashcash:install:migrations
-rails db:migrate
+
+Or, link hashcash to your JavaScript manifest and load it to your head.
+
+```js
+//= link hashcash.js
 ```
+
+```erb
+<%= javascript_include_tag "hashcash", "data-turbo-track": "reload", defer: true %>
+```
+
+The hashcash stamp will be set in the hidden input once computed and the submit button enabled.
+
+To customize behaviours, you can override methods of ActiveHashcash module.
+
+
 
 ### Dashboard
 
@@ -99,10 +102,22 @@ It's not mandatory, but useful for monitoring purpose.
 mount ActiveHashcash::Engine, at: "hashcash"
 ```
 
-ActiveHashcash cannot guess how you handle user authentication, because it is different for all Rails applications.
-So you have to monkey patch `ActiveHashcash::ApplicationController` in order to inject your own mechanism.
-The patch can be saved wherever you want.
-For example, I like to have all the patches in one place, so I put them in `lib/patches`.
+ActiveHashcash cannot guess how user authentication is handled, because it is different for all Rails applications.
+So here is 3 options.
+
+#### Inheritance
+
+By default ActiveHashcash extends `ActionController::Base`, but you can change it to any controller, such as `AdminController`.
+
+```ruby
+# config/initializers/active_hashcash.rb
+Rails.application.configure do
+  ActiveHashcash.base_controller_class = "AdminController"
+end
+```
+#### Monkey patching
+
+Monkey patching `ActiveHashcash::ApplicationController` let you inject your own mechanism.
 
 ```ruby
 # lib/patches/active_hashcash.rb
@@ -118,9 +133,7 @@ ActiveHashcash::ApplicationController.class_eval do
 end
 ```
 
-Then you have to require the monkey patch.
-Because it's loaded via require, it won't be reloaded in development.
-Since you are not supposed to change this file often, it should not be an issue.
+Then the patch has to be loaded from after initialization:
 
 ```ruby
 # config/application.rb
@@ -129,21 +142,14 @@ config.after_initialize do
 end
 ```
 
-If you use Devise, you can check the permission directly from routes.rb:
+#### With Devise
+
+Permission check can be achieved directly from routes.rb:
 
 ```ruby
 # config/routes.rb
 authenticate :user, -> (u) { u.admin? } do # Supposing there is a User#admin? method
   mount ActiveHashcash::Engine, at: "hashcash" # http://localhost:3000/hashcash
-end
-```
-
-By default ActiveHashcash will extend `ActionController::Base`, but you can change it to any controller you want.
-
-```ruby
-# config/initializers/active_hashcash.rb
-Rails.application.configure do
-  ActiveHashcash.base_controller_class = "AdminController"
 end
 ```
 
@@ -192,4 +198,4 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/BaseSe
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
-Made by Alexis Bernard at [RorVsWild](https://www.rorvswild.com).
+Made by [Alexis Bernard](https://alexis.bernard.io/).

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module ActiveHashcash
+  # This is the model to store hashcash stamps.
+  # Unless you need something really specific, you should not need interact directly with that class.
   class Stamp < ApplicationRecord
     validates_presence_of :version, :bits, :date, :resource, :rand, :counter
 
@@ -24,6 +26,8 @@ module ActiveHashcash
       scope
     end
 
+    # Verify and save the hashcash stamp.
+    # Saving in the database prevent from double spending the same stamp.
     def self.spend(string, resource, bits, date, options = {})
       return false unless stamp = parse(string)
       stamp.attributes = options
@@ -32,6 +36,9 @@ module ActiveHashcash
       false
     end
 
+    # Pare and instanciate a stamp from a sting which respects the hashcash format:
+    #
+    #   ver:bits:date:resource:[ext]:rand:counter
     def self.parse(string)
       args = string.to_s.split(":")
       return if args.size != 7

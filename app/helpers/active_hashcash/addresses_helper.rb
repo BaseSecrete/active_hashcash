@@ -1,4 +1,4 @@
 module ActiveHashcash
-  module AddressesHelper
+  module AddressesHelper # :nodoc:
   end
 end

@@ -1,5 +1,5 @@
 module ActiveHashcash
-  class AssetsController < ApplicationController
+  class AssetsController < ApplicationController # :nodoc:
     protect_from_forgery except: :show
 
     Mime::Type.register "image/x-icon", :ico
