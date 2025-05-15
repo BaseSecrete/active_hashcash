@@ -1,6 +1,6 @@
 # Changelog of ActiveHashcash
 
-## Unreleased
+## 0.4.0 (2025-05-15)
 
 - Prevent from password managers to submit the form before the stamp has been computed
 - Added support for the "button" submit form tag
