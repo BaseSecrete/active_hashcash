@@ -3,7 +3,7 @@ require "test_helper"
 class ActiveHashcashTest < ActiveSupport::TestCase
 
   class SampleController < ApplicationController
-    include ActiveHashcash
+    include ActiveHashcash::Concern
 
     def hashcash_ip_address
       "127.0.0.1"

@@ -47,11 +47,11 @@ rails active_hashcash:install:migrations
 rails db:migrate
 ```
 
-Then you have to include ActiveHashcash and add a `before_action :check_hashcash` in you controller:
+Then you have to `include ActiveHashcash::Concern` and add a `before_action :check_hashcash` in you controller:
 
 ```ruby
 class SessionController < ApplicationController
-  include ActiveHashcash
+  include ActiveHashcash::Concern
 
   # Only the action receiving the form needs to be protected
   before_action :check_hashcash, only: :create

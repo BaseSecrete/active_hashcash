@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  include ActiveHashcash
+  include ActiveHashcash::Concern
 
   before_action :check_hashcash
 

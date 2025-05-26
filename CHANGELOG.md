@@ -1,5 +1,18 @@
 # Changelog of ActiveHashcash
 
+### Unreleased
+
+- Prevent from conflicts by isolating included module to ActiveHashcash::Concern instead of ActiveHashcash
+
+    This is a breaking change, and you must update you controllers like this:
+
+    ```diff
+    class ExampleController < ApplicationController
+   -  include ActiveHashcash
+   +  include ActiveHashcash::Concern
+    end
+   ```
+
 ## 0.4.0 (2025-05-15)
 
 - Prevent from password managers to submit the form before the stamp has been computed
