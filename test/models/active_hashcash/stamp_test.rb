@@ -11,7 +11,7 @@ module ActiveHashcash
       assert_equal(str, ActiveHashcash::Stamp.parse(str).to_s)
     end
 
-    def test_auhtentic?
+    def test_authentic?
       assert(ActiveHashcash::Stamp.parse("1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh").authentic?)
       refute(ActiveHashcash::Stamp.parse("1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh_").authentic?)
     end
