@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hashcash SHA-256 Benchmark Suite</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 1100px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; line-height: 1.6; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.15rem; }
+    h2 { font-size: 1.05rem; margin: 1.5rem 0 0.6rem; color: #333; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.2rem; }
+    p.subtitle { color: #555; margin-bottom: 1.25rem; font-size: 0.88rem; }
+
+    .controls { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    label { font-weight: 600; font-size: 0.84rem; }
+    select, button, input[type=number], input[type=text] { font-size: 0.84rem; padding: 0.32rem 0.55rem; border: 1px solid #ccc; border-radius: 4px; }
+    input[type=number] { width: 120px; }
+    input[type=text] { width: 130px; }
+    button { background: #2563eb; color: #fff; border: none; cursor: pointer; font-weight: 600; padding: 0.4rem 1rem; border-radius: 4px; }
+    button:hover { background: #1d4ed8; }
+    button:disabled { background: #93c5fd; cursor: not-allowed; }
+    button.secondary { background: #6b7280; }
+    button.secondary:hover { background: #4b5563; }
+    button.secondary:disabled { background: #d1d5db; color: #9ca3af; }
+
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.75rem; }
+    .checkbox-group label { display: flex; align-items: center; gap: 0.3rem; font-weight: 400; font-size: 0.84rem; cursor: pointer; padding: 0.3rem 0.65rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; transition: all 0.15s; }
+    .checkbox-group label:has(input:checked) { background: #eff6ff; border-color: #93c5fd; }
+    .checkbox-group input[type=checkbox] { margin: 0; accent-color: #2563eb; }
+
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.25rem; font-size: 0.82rem; }
+    th, td { text-align: left; padding: 0.4rem 0.55rem; border-bottom: 1px solid #e5e7eb; }
+    th { background: #f9fafb; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.02em; color: #6b7280; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: "SF Mono", Monaco, "Cascadia Code", "Fira Code", monospace; font-size: 0.8rem; }
+    tr.rank-1 td { background: #ecfdf5; }
+    tr.rank-2 td { background: #fefce8; }
+    tr.rank-last td { background: #fef2f2; }
+    tr.reference td { background: #f5f3ff; font-style: italic; }
+
+    .status { padding: 0.6rem 0.75rem; border-radius: 5px; background: #f0f9ff; border: 1px solid #bae6fd; margin-bottom: 0.75rem; font-size: 0.84rem; min-height: 2.2rem; }
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid #93c5fd; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 0.35rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .bar-cell { min-width: 180px; }
+    .bar { height: 16px; border-radius: 3px; min-width: 3px; display: inline-block; vertical-align: middle; }
+    .bar-webcrypto-batched { background: #60a5fa; }
+    .bar-pure-js { background: #34d399; }
+    .bar-webcrypto-seq { background: #a78bfa; }
+    .bar-wasm { background: #f97316; }
+    .bar-reference { background: #e879f9; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem; font-size: 0.78rem; color: #555; }
+    .legend-item { display: flex; align-items: center; gap: 0.25rem; }
+    .legend-swatch { width: 13px; height: 13px; border-radius: 2px; flex-shrink: 0; }
+
+    .ref-section { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 6px; padding: 0.6rem 0.85rem; margin-bottom: 0.75rem; }
+    .ref-section > p { font-size: 0.8rem; color: #7c3aed; margin-bottom: 0.35rem; }
+    .ref-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+
+    .notes { margin-top: 1.5rem; font-size: 0.78rem; color: #555; }
+    .notes p { margin-bottom: 0.4rem; }
+    .notes code { background: #f3f4f6; padding: 0.08rem 0.25rem; border-radius: 3px; font-size: 0.76rem; }
+    .notes pre { background: #f3f4f6; padding: 0.45rem 0.7rem; border-radius: 4px; overflow-x: auto; font-size: 0.76rem; margin: 0.15rem 0 0.6rem; }
+    .notes a { color: #2563eb; }
+  </style>
+</head>
+<body>
+
+<h1>Hashcash SHA-256 Benchmark Suite</h1>
+<p class="subtitle">Compare four SHA-256 proof-of-work implementations side-by-side: WebCrypto Batched, Pure JS, WebCrypto Sequential, and WASM (hash-wasm).</p>
+
+<h2>Configuration</h2>
+
+<div class="controls">
+  <label for="bits">Difficulty (bits):</label>
+  <select id="bits">
+    <option value="16" selected>16 (quick)</option>
+    <option value="18">18 (moderate)</option>
+    <option value="20">20 (default)</option>
+    <option value="22">22 (heavy)</option>
+  </select>
+
+  <label for="rounds">Rounds:</label>
+  <select id="rounds">
+    <option value="1">1</option>
+    <option value="3" selected>3</option>
+    <option value="5">5</option>
+  </select>
+
+  <label for="batchSize">Batch size (WebCrypto):</label>
+  <select id="batchSize">
+    <option value="5000">5,000</option>
+    <option value="10000">10,000</option>
+    <option value="20000" selected>20,000</option>
+    <option value="50000">50,000</option>
+    <option value="100000">100,000</option>
+    <option value="dynamic">dynamic 2^(bits&minus;2)</option>
+  </select>
+</div>
+
+<p style="font-size:0.8rem;color:#666;margin-bottom:0.5rem;">Select which approaches to benchmark:</p>
+<div class="checkbox-group">
+  <label><input type="checkbox" id="algo-webcrypto-batched" checked> WebCrypto Batched (Worker)</label>
+  <label><input type="checkbox" id="algo-pure-js" checked> Pure JS (Worker)</label>
+  <label><input type="checkbox" id="algo-webcrypto-seq" checked> WebCrypto Sequential (Worker)</label>
+  <label><input type="checkbox" id="algo-wasm" checked> WASM &mdash; hash-wasm (Worker)</label>
+</div>
+
+<div class="ref-section">
+  <p><strong>Reference speed</strong> &mdash; Enter a known hashes/sec from the C <code>hashcash</code> CLI or Ruby to compare against JS:</p>
+  <div class="ref-controls">
+    <label for="refSpeed">h/s:</label>
+    <input type="number" id="refSpeed" placeholder="e.g. 8000000" min="0">
+    <label for="refLabel">Label:</label>
+    <input type="text" id="refLabel" value="C hashcash">
+  </div>
+</div>
+
+<div class="controls">
+  <button id="run">Run Benchmark</button>
+  <button id="stop" class="secondary" disabled>Stop</button>
+</div>
+
+<div id="status" class="status" style="display:none"></div>
+
+<div id="resultsSection" style="display:none">
+<h2>Results &mdash; Throughput (hashes/sec)</h2>
+
+<div class="legend" id="legend">
+  <div class="legend-item"><div class="legend-swatch bar-webcrypto-batched"></div> WebCrypto Batched</div>
+  <div class="legend-item"><div class="legend-swatch bar-pure-js"></div> Pure JS</div>
+  <div class="legend-item"><div class="legend-swatch bar-webcrypto-seq"></div> WebCrypto Sequential</div>
+  <div class="legend-item"><div class="legend-swatch bar-wasm"></div> WASM (hash-wasm)</div>
+  <div class="legend-item"><div class="legend-swatch bar-reference"></div> Reference</div>
+</div>
+
+<table id="results">
+  <thead>
+    <tr>
+      <th style="width:28%">Approach</th>
+      <th style="text-align:right;width:11%">Avg Time</th>
+      <th style="text-align:right;width:11%">Avg Hashes</th>
+      <th style="text-align:right;width:12%">Hashes/s</th>
+      <th class="bar-cell" style="width:24%">Throughput</th>
+      <th style="text-align:right;width:14%">vs Fastest</th>
+    </tr>
+  </thead>
+  <tbody id="resultBody"></tbody>
+</table>
+</div>
+
+<div id="roundsSection" style="display:none">
+<h2>Per-Round Details</h2>
+<table id="roundsTable">
+  <thead id="roundsHead"></thead>
+  <tbody id="roundsBody"></tbody>
+</table>
+</div>
+
+<div class="notes">
+  <h2>Notes</h2>
+  <p><strong>What this measures:</strong> End-to-end proof-of-work minting time in the browser.
+    <em>Hashes/sec</em> normalizes for the random number of attempts needed, making it the most meaningful comparison across runs.</p>
+  <p><strong>WebCrypto Batched</strong> &mdash; <code>crypto.subtle.digest("SHA-256")</code> inside a Web Worker. Nonces are batched via <code>Promise.all</code> to amortize async overhead. Batch size is configurable. This is the current <a href="https://github.com/BaseSecrete/active_hashcash/pull/15">PR #15</a> approach.</p>
+  <p><strong>Pure JS</strong> &mdash; A synchronous SHA-256 implementation (~90 lines) in a Web Worker. Zero async overhead &mdash; tight loop. This is what Alexis (BaseSecrete) suggested for maximizing client-side speed.</p>
+  <p><strong>WebCrypto Sequential</strong> &mdash; One <code>await crypto.subtle.digest()</code> per nonce, no batching. Similar to how <a href="https://github.com/altcha-org/altcha">Altcha</a> does it (they compensate with multiple workers). Included as a baseline.</p>
+  <p><strong>WASM (hash-wasm)</strong> &mdash; <a href="https://github.com/Daninet/hash-wasm">hash-wasm</a>'s hand-tuned WebAssembly SHA-256, loaded from CDN. Synchronous <code>init()</code>/<code>update()</code>/<code>digest()</code> loop in a Web Worker. The closest you can get to native C speed in a browser. Similar to how <a href="https://github.com/tiagozip/cap">Cap</a> uses compiled Rust&rarr;WASM for hashing.</p>
+  <p><strong>Dynamic batch size</strong> <code>2^(bits&minus;2)</code> &mdash; Alexis's suggestion. Scales with difficulty so bigger challenges use bigger batches.</p>
+  <p style="margin-top:0.75rem"><strong>To get a C reference speed</strong>, install <a href="http://www.hashcash.org/">hashcash</a> and run:</p>
+  <pre>hashcash -b20 -mS -r benchmark.example.com</pre>
+  <p>Or use the included Ruby benchmark:</p>
+  <pre>cd active_hashcash &amp;&amp; bundle exec ruby benchmark/benchmark.rb</pre>
+  <p>Then enter the hashes/sec number in the Reference field above.</p>
+  <p style="margin-top:0.75rem"><strong>Why speed matters for security:</strong> The faster the JS client can mine, the smaller the advantage an attacker gets from using a compiled (C/Rust) implementation. Minimizing this ratio means the base difficulty (<code>bits</code>) can be set higher, improving protection against bots while keeping the UX acceptable for real users.</p>
+</div>
+
+<script>
+// ============================================================
+// Helpers
+// ============================================================
+function formatDate() {
+  var d = new Date();
+  var y = d.getFullYear().toString().slice(-2);
+  var m = (d.getMonth() + 1).toString().padStart(2, "0");
+  var day = d.getDate().toString().padStart(2, "0");
+  return y + m + day;
+}
+
+function randomString() {
+  return Math.random().toString(36).substr(2, 10);
+}
+
+function fmt(ms) {
+  if (ms < 1000) return ms.toFixed(0) + " ms";
+  return (ms / 1000).toFixed(2) + " s";
+}
+
+function fmtNum(n) {
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function getEffectiveBatchSize(bits) {
+  var sel = document.getElementById("batchSize").value;
+  if (sel === "dynamic") return Math.pow(2, Math.max(1, bits - 2));
+  return parseInt(sel, 10);
+}
+
+function getBatchLabel(bits) {
+  var sel = document.getElementById("batchSize").value;
+  if (sel === "dynamic") return "2^" + (bits - 2) + " = " + fmtNum(Math.pow(2, bits - 2));
+  return fmtNum(parseInt(sel, 10));
+}
+
+// ============================================================
+// Worker lifecycle management
+// ============================================================
+var activeWorkers = [];
+var stopped = false;
+
+function trackWorker(w) { activeWorkers.push(w); }
+function untrackWorker(w) {
+  var i = activeWorkers.indexOf(w);
+  if (i !== -1) activeWorkers.splice(i, 1);
+}
+function cleanupWorker(worker, url) {
+  worker.terminate();
+  URL.revokeObjectURL(url);
+  untrackWorker(worker);
+}
+function stopAll() {
+  stopped = true;
+  activeWorkers.forEach(function(w) { try { w.terminate(); } catch(e) {} });
+  activeWorkers = [];
+}
+
+function makeWorker(code) {
+  var blob = new Blob(["(" + code.toString() + ")()"], { type: "application/javascript" });
+  var url = URL.createObjectURL(blob);
+  var worker = new Worker(url);
+  trackWorker(worker);
+  return { worker: worker, url: url };
+}
+
+// ============================================================
+// 1. SHA-256 WebCrypto Batched (Worker)
+// ============================================================
+function mintWebCryptoBatched(resource, bits, batchSize) {
+  return new Promise(function(resolve, reject) {
+    var date = formatDate(), rand = randomString();
+    var prefix = "1:" + bits + ":" + date + ":" + resource + ":sha256:" + rand;
+
+    var workerCode = function() {
+      self.addEventListener("message", function(e) {
+        var d = e.data, prefix = d.prefix, bits = d.bits, BS = d.batchSize, counter = 0;
+        var fullBytes = Math.floor(bits / 8);
+        var remBits = bits % 8;
+        var mask = remBits > 0 ? (0xFF << (8 - remBits)) & 0xFF : 0;
+        var enc = new TextEncoder();
+
+        function batch() {
+          var promises = [], counters = [];
+          for (var i = 0; i < BS; i++) {
+            var c = counter + i;
+            counters.push(c);
+            promises.push(crypto.subtle.digest("SHA-256", enc.encode(prefix + ":" + c)));
+          }
+          Promise.all(promises).then(function(digests) {
+            for (var i = 0; i < digests.length; i++) {
+              var h = new Uint8Array(digests[i]), ok = true;
+              for (var b = 0; b < fullBytes; b++) { if (h[b] !== 0) { ok = false; break; } }
+              if (ok && remBits > 0 && (h[fullBytes] & mask) !== 0) ok = false;
+              if (ok) { self.postMessage({ found: true, counter: counters[i] }); return; }
+            }
+            counter += BS;
+            setTimeout(batch, 0);
+          });
+        }
+        batch();
+      });
+    };
+
+    var w = makeWorker(workerCode);
+    var start = performance.now();
+    w.worker.onmessage = function(e) {
+      if (e.data.found) {
+        cleanupWorker(w.worker, w.url);
+        resolve({ counter: e.data.counter, ms: performance.now() - start });
+      }
+    };
+    w.worker.onerror = function(e) { cleanupWorker(w.worker, w.url); reject(e); };
+    w.worker.postMessage({ prefix: prefix, bits: bits, batchSize: batchSize });
+  });
+}
+
+// ============================================================
+// 2. SHA-256 Pure JS (Worker) — synchronous tight loop
+// ============================================================
+function mintPureJS(resource, bits) {
+  return new Promise(function(resolve, reject) {
+    var date = formatDate(), rand = randomString();
+    var prefix = "1:" + bits + ":" + date + ":" + resource + ":sha256:" + rand;
+
+    var workerCode = function() {
+      var K = new Uint32Array([
+        0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+        0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+        0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+        0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+        0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+        0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+        0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+        0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+      ]);
+
+      function sha256bytes(bytes, len) {
+        var padded = new Uint8Array(((len + 9 + 63) & ~63));
+        for (var i = 0; i < len; i++) padded[i] = bytes[i];
+        padded[len] = 0x80;
+        var bitLen = len * 8;
+        var pLen = padded.length;
+        padded[pLen - 4] = (bitLen >>> 24) & 0xff;
+        padded[pLen - 3] = (bitLen >>> 16) & 0xff;
+        padded[pLen - 2] = (bitLen >>> 8) & 0xff;
+        padded[pLen - 1] = bitLen & 0xff;
+
+        var H0 = 0x6a09e667, H1 = 0xbb67ae85, H2 = 0x3c6ef372, H3 = 0xa54ff53a;
+        var H4 = 0x510e527f, H5 = 0x9b05688c, H6 = 0x1f83d9ab, H7 = 0x5be0cd19;
+        var W = new Int32Array(64);
+
+        for (var off = 0; off < pLen; off += 64) {
+          for (var t = 0; t < 16; t++) {
+            W[t] = (padded[off+t*4]<<24)|(padded[off+t*4+1]<<16)|(padded[off+t*4+2]<<8)|padded[off+t*4+3];
+          }
+          for (var t = 16; t < 64; t++) {
+            var w15 = W[t-15], w2 = W[t-2];
+            W[t] = (W[t-16] + (((w15>>>7)|(w15<<25))^((w15>>>18)|(w15<<14))^(w15>>>3)) + W[t-7] + (((w2>>>17)|(w2<<15))^((w2>>>19)|(w2<<13))^(w2>>>10))) | 0;
+          }
+          var a=H0,b=H1,c=H2,d=H3,e=H4,f=H5,g=H6,h=H7;
+          for (var t = 0; t < 64; t++) {
+            var t1 = (h + (((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7))) + ((e&f)^(~e&g)) + K[t] + W[t]) | 0;
+            var t2 = ((((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10))) + ((a&b)^(a&c)^(b&c))) | 0;
+            h=g; g=f; f=e; e=(d+t1)|0; d=c; c=b; b=a; a=(t1+t2)|0;
+          }
+          H0=(H0+a)|0; H1=(H1+b)|0; H2=(H2+c)|0; H3=(H3+d)|0;
+          H4=(H4+e)|0; H5=(H5+f)|0; H6=(H6+g)|0; H7=(H7+h)|0;
+        }
+        return [H0, H1, H2, H3, H4, H5, H6, H7];
+      }
+
+      function strToBytes(str, out, offset) {
+        for (var i = 0; i < str.length; i++) {
+          var c = str.charCodeAt(i);
+          if (c < 128) out[offset++] = c;
+          else if (c < 2048) { out[offset++] = (c>>6)|192; out[offset++] = (c&63)|128; }
+          else { out[offset++] = (c>>12)|224; out[offset++] = ((c>>6)&63)|128; out[offset++] = (c&63)|128; }
+        }
+        return offset;
+      }
+
+      function numToBytes(n, out, offset) {
+        if (n === 0) { out[offset] = 48; return offset + 1; }
+        var digs = [];
+        while (n > 0) { digs.push(48 + (n % 10)); n = (n / 10) | 0; }
+        for (var i = digs.length - 1; i >= 0; i--) out[offset++] = digs[i];
+        return offset;
+      }
+
+      self.addEventListener("message", function(e) {
+        var d = e.data, prefix = d.prefix + ":", bits = d.bits, counter = 0;
+        var fullBytes = Math.floor(bits / 8);
+        var remBits = bits % 8;
+        var mask = remBits > 0 ? (0xFF << (8 - remBits)) & 0xFF : 0;
+
+        var buf = new Uint8Array(prefix.length + 12);
+        var prefixLen = strToBytes(prefix, buf, 0);
+
+        var YIELD = 65536;
+
+        function mine() {
+          var end = counter + YIELD;
+          while (counter < end) {
+            var len = numToBytes(counter, buf, prefixLen);
+            var H = sha256bytes(buf, len);
+
+            var ok = true, byteIdx = 0;
+            check:
+            for (var w = 0; w < 8 && byteIdx <= fullBytes; w++) {
+              var word = H[w];
+              for (var s = 24; s >= 0; s -= 8) {
+                var bv = (word >>> s) & 0xFF;
+                if (byteIdx < fullBytes) {
+                  if (bv !== 0) { ok = false; break check; }
+                } else if (byteIdx === fullBytes && remBits > 0) {
+                  if ((bv & mask) !== 0) ok = false;
+                  break check;
+                } else { break check; }
+                byteIdx++;
+              }
+            }
+            if (ok) { self.postMessage({ found: true, counter: counter }); return; }
+            counter++;
+          }
+          setTimeout(mine, 0);
+        }
+        mine();
+      });
+    };
+
+    var w = makeWorker(workerCode);
+    var start = performance.now();
+    w.worker.onmessage = function(e) {
+      if (e.data.found) {
+        cleanupWorker(w.worker, w.url);
+        resolve({ counter: e.data.counter, ms: performance.now() - start });
+      }
+    };
+    w.worker.onerror = function(e) { cleanupWorker(w.worker, w.url); reject(e); };
+    w.worker.postMessage({ prefix: prefix, bits: bits });
+  });
+}
+
+// ============================================================
+// 3. SHA-256 WebCrypto Sequential (Worker) — 1 await/nonce
+// ============================================================
+function mintWebCryptoSeq(resource, bits) {
+  return new Promise(function(resolve, reject) {
+    var date = formatDate(), rand = randomString();
+    var prefix = "1:" + bits + ":" + date + ":" + resource + ":sha256:" + rand;
+
+    var workerCode = function() {
+      self.addEventListener("message", function(e) {
+        var d = e.data, prefix = d.prefix, bits = d.bits, counter = 0;
+        var fullBytes = Math.floor(bits / 8);
+        var remBits = bits % 8;
+        var mask = remBits > 0 ? (0xFF << (8 - remBits)) & 0xFF : 0;
+        var enc = new TextEncoder();
+
+        async function mine() {
+          while (true) {
+            var digest = await crypto.subtle.digest("SHA-256", enc.encode(prefix + ":" + counter));
+            var h = new Uint8Array(digest), ok = true;
+            for (var b = 0; b < fullBytes; b++) { if (h[b] !== 0) { ok = false; break; } }
+            if (ok && remBits > 0 && (h[fullBytes] & mask) !== 0) ok = false;
+            if (ok) { self.postMessage({ found: true, counter: counter }); return; }
+            counter++;
+          }
+        }
+        mine();
+      });
+    };
+
+    var w = makeWorker(workerCode);
+    var start = performance.now();
+    w.worker.onmessage = function(e) {
+      if (e.data.found) {
+        cleanupWorker(w.worker, w.url);
+        resolve({ counter: e.data.counter, ms: performance.now() - start });
+      }
+    };
+    w.worker.onerror = function(e) { cleanupWorker(w.worker, w.url); reject(e); };
+    w.worker.postMessage({ prefix: prefix, bits: bits });
+  });
+}
+
+// ============================================================
+// 4. SHA-256 WASM via hash-wasm (Worker)
+// ============================================================
+var HASH_WASM_CDN = "https://cdn.jsdelivr.net/npm/hash-wasm@4/dist/sha256.umd.min.js";
+
+function mintWASM(resource, bits) {
+  return new Promise(function(resolve, reject) {
+    var date = formatDate(), rand = randomString();
+    var prefix = "1:" + bits + ":" + date + ":" + resource + ":sha256:" + rand;
+
+    var workerCode = function() {
+      self.addEventListener("message", async function(e) {
+        var d = e.data, prefix = d.prefix + ":", bits = d.bits, cdnUrl = d.cdnUrl;
+        var fullBytes = Math.floor(bits / 8);
+        var remBits = bits % 8;
+        var mask = remBits > 0 ? (0xFF << (8 - remBits)) & 0xFF : 0;
+
+        try {
+          importScripts(cdnUrl);
+        } catch(err) {
+          self.postMessage({ error: "Failed to load hash-wasm: " + err.message });
+          return;
+        }
+
+        var hasher;
+        try {
+          hasher = await hashwasm.createSHA256();
+        } catch(err) {
+          self.postMessage({ error: "Failed to init hash-wasm: " + err.message });
+          return;
+        }
+
+        var counter = 0;
+        var YIELD = 65536;
+
+        function mine() {
+          var end = counter + YIELD;
+          while (counter < end) {
+            hasher.init();
+            hasher.update(prefix + counter);
+            var hash = hasher.digest("binary");
+
+            var ok = true;
+            for (var b = 0; b < fullBytes; b++) {
+              if (hash[b] !== 0) { ok = false; break; }
+            }
+            if (ok && remBits > 0 && (hash[fullBytes] & mask) !== 0) ok = false;
+
+            if (ok) {
+              self.postMessage({ found: true, counter: counter });
+              return;
+            }
+            counter++;
+          }
+          setTimeout(mine, 0);
+        }
+        mine();
+      });
+    };
+
+    var w = makeWorker(workerCode);
+    var start = performance.now();
+    w.worker.onmessage = function(e) {
+      if (e.data.error) {
+        cleanupWorker(w.worker, w.url);
+        reject(new Error(e.data.error));
+        return;
+      }
+      if (e.data.found) {
+        cleanupWorker(w.worker, w.url);
+        resolve({ counter: e.data.counter, ms: performance.now() - start });
+      }
+    };
+    w.worker.onerror = function(e) { cleanupWorker(w.worker, w.url); reject(e); };
+    w.worker.postMessage({ prefix: prefix, bits: bits, cdnUrl: HASH_WASM_CDN });
+  });
+}
+
+// ============================================================
+// Algo metadata
+// ============================================================
+var ALGO_META = {
+  "webcrypto-batched": { label: "WebCrypto Batched (Worker)",   short: "WC Batch", bar: "bar-webcrypto-batched", fn: null },
+  "pure-js":           { label: "Pure JS (Worker)",             short: "Pure JS",   bar: "bar-pure-js",           fn: null },
+  "webcrypto-seq":     { label: "WebCrypto Sequential (Worker)",short: "WC Seq",    bar: "bar-webcrypto-seq",     fn: null },
+  "wasm":              { label: "WASM / hash-wasm (Worker)",    short: "WASM",      bar: "bar-wasm",              fn: null }
+};
+
+// ============================================================
+// Benchmark runner
+// ============================================================
+var runBtn = document.getElementById("run");
+var stopBtn = document.getElementById("stop");
+var statusEl = document.getElementById("status");
+var resultsSection = document.getElementById("resultsSection");
+var resultBody = document.getElementById("resultBody");
+var roundsSection = document.getElementById("roundsSection");
+var roundsHead = document.getElementById("roundsHead");
+var roundsBody = document.getElementById("roundsBody");
+
+stopBtn.addEventListener("click", function() {
+  stopAll();
+  statusEl.innerHTML = "\u26d4 Benchmark stopped.";
+  runBtn.disabled = false;
+  stopBtn.disabled = true;
+});
+
+runBtn.addEventListener("click", async function() {
+  var bits = parseInt(document.getElementById("bits").value, 10);
+  var rounds = parseInt(document.getElementById("rounds").value, 10);
+  var batchSize = getEffectiveBatchSize(bits);
+  var batchLabel = getBatchLabel(bits);
+  var refSpeed = parseInt(document.getElementById("refSpeed").value, 10) || 0;
+  var refLabel = document.getElementById("refLabel").value || "Reference";
+
+  var algos = [];
+  if (document.getElementById("algo-webcrypto-batched").checked) algos.push("webcrypto-batched");
+  if (document.getElementById("algo-pure-js").checked) algos.push("pure-js");
+  if (document.getElementById("algo-webcrypto-seq").checked) algos.push("webcrypto-seq");
+  if (document.getElementById("algo-wasm").checked) algos.push("wasm");
+
+  if (algos.length === 0) { alert("Select at least one approach."); return; }
+
+  stopped = false;
+  runBtn.disabled = true;
+  stopBtn.disabled = false;
+  resultsSection.style.display = "none";
+  roundsSection.style.display = "none";
+  resultBody.innerHTML = "";
+  roundsBody.innerHTML = "";
+  statusEl.style.display = "block";
+
+  // Rounds table header
+  var hdr = "<tr><th>Round</th>";
+  for (var a = 0; a < algos.length; a++) {
+    hdr += '<th style="text-align:right">' + ALGO_META[algos[a]].short + " Time</th>";
+    hdr += '<th style="text-align:right">' + ALGO_META[algos[a]].short + " #</th>";
+  }
+  roundsHead.innerHTML = hdr + "</tr>";
+
+  var allResults = {};
+  algos.forEach(function(id) { allResults[id] = []; });
+
+  for (var i = 0; i < rounds; i++) {
+    if (stopped) break;
+    var roundData = {};
+
+    for (var a = 0; a < algos.length; a++) {
+      if (stopped) break;
+      var algo = algos[a], meta = ALGO_META[algo];
+
+      var detail = algo === "webcrypto-batched" ? " (batch: " + batchLabel + ")" : "";
+      statusEl.innerHTML = '<span class="spinner"></span>Round ' + (i + 1) + "/" + rounds +
+        " \u2014 " + meta.label + detail + "\u2026";
+
+      await new Promise(function(r) { setTimeout(r, 50); });
+
+      var result;
+      try {
+        if (algo === "webcrypto-batched") result = await mintWebCryptoBatched("benchmark.example.com", bits, batchSize);
+        else if (algo === "pure-js") result = await mintPureJS("benchmark.example.com", bits);
+        else if (algo === "webcrypto-seq") result = await mintWebCryptoSeq("benchmark.example.com", bits);
+        else if (algo === "wasm") result = await mintWASM("benchmark.example.com", bits);
+      } catch (err) {
+        console.error(algo, err);
+        result = { counter: 0, ms: 0, error: true };
+      }
+
+      allResults[algo].push(result);
+      roundData[algo] = result;
+    }
+
+    if (stopped) break;
+
+    // Round row
+    var tr = document.createElement("tr");
+    var row = "<td>" + (i + 1) + "</td>";
+    for (var a = 0; a < algos.length; a++) {
+      var r = roundData[algos[a]];
+      if (r && !r.error) {
+        row += '<td class="num">' + fmt(r.ms) + "</td>";
+        row += '<td class="num">' + fmtNum(r.counter) + "</td>";
+      } else {
+        row += '<td class="num">\u2014</td><td class="num">\u2014</td>';
+      }
+    }
+    tr.innerHTML = row;
+    roundsBody.appendChild(tr);
+    roundsSection.style.display = "";
+  }
+
+  if (stopped) { runBtn.disabled = false; stopBtn.disabled = true; return; }
+
+  // Compute summaries
+  var summaries = [];
+  for (var a = 0; a < algos.length; a++) {
+    var algo = algos[a], arr = allResults[algo];
+    var totalMs = 0, totalH = 0, valid = 0;
+    for (var j = 0; j < arr.length; j++) {
+      if (!arr[j].error && arr[j].ms > 0) { totalMs += arr[j].ms; totalH += arr[j].counter; valid++; }
+    }
+    if (valid === 0) continue;
+    var avgMs = totalMs / valid, avgH = totalH / valid;
+    var hps = avgMs > 0 ? Math.round(avgH / (avgMs / 1000)) : 0;
+    summaries.push({ algo: algo, label: ALGO_META[algo].label, bar: ALGO_META[algo].bar, avgMs: avgMs, avgH: avgH, hps: hps });
+  }
+
+  if (refSpeed > 0) {
+    summaries.push({ algo: "reference", label: refLabel + " (reference)", bar: "bar-reference", avgMs: 0, avgH: 0, hps: refSpeed, isRef: true });
+  }
+
+  summaries.sort(function(a, b) { return b.hps - a.hps; });
+
+  var maxHps = summaries.length > 0 ? summaries[0].hps : 1;
+  if (maxHps === 0) maxHps = 1;
+
+  for (var s = 0; s < summaries.length; s++) {
+    var sum = summaries[s], rank = s + 1;
+    var cls = "";
+    if (summaries.length > 1) {
+      if (rank === 1) cls = "rank-1";
+      else if (rank === 2 && summaries.length > 2) cls = "rank-2";
+      else if (rank === summaries.length) cls = "rank-last";
+    }
+    if (sum.isRef) cls = "reference";
+
+    var barW = Math.max(3, Math.round((sum.hps / maxHps) * 220));
+    var vs;
+    if (rank === 1) vs = "\u2b50 fastest";
+    else { var ratio = summaries[0].hps / sum.hps; vs = ratio.toFixed(2) + "\u00d7 slower"; }
+
+    var tr = document.createElement("tr");
+    tr.className = cls;
+    tr.innerHTML =
+      "<td>" + sum.label + "</td>" +
+      '<td class="num">' + (sum.isRef ? "\u2014" : fmt(sum.avgMs)) + "</td>" +
+      '<td class="num">' + (sum.isRef ? "\u2014" : fmtNum(sum.avgH)) + "</td>" +
+      '<td class="num"><strong>' + fmtNum(sum.hps) + "</strong></td>" +
+      '<td class="bar-cell"><div class="bar ' + sum.bar + '" style="width:' + barW + 'px"></div></td>' +
+      '<td class="num">' + vs + "</td>";
+    resultBody.appendChild(tr);
+  }
+
+  // Status summary
+  var jsOnly = summaries.filter(function(s) { return !s.isRef; });
+  var best = jsOnly.length > 0 ? jsOnly[0] : null;
+  var html = "\u2705 Done!";
+  if (best) html += " <strong>Fastest:</strong> " + best.label + " at <strong>" + fmtNum(best.hps) + " h/s</strong>.";
+  if (refSpeed > 0 && best) {
+    var r = (refSpeed / best.hps);
+    html += "<br>\ud83d\udcca <strong>" + refLabel + "</strong> (" + fmtNum(refSpeed) + " h/s) is <strong>" + r.toFixed(1) + "\u00d7</strong> " +
+      (refSpeed > best.hps ? "faster" : "slower") + " than the best JS approach.";
+    if (refSpeed > best.hps) html += " (Goal: get this ratio as close to 1\u00d7 as possible)";
+  }
+  if (algos.indexOf("webcrypto-batched") !== -1) {
+    html += "<br>\ud83d\udce6 WebCrypto batch size: <strong>" + batchLabel + "</strong>";
+  }
+  statusEl.innerHTML = html;
+
+  resultsSection.style.display = "";
+  runBtn.disabled = false;
+  stopBtn.disabled = true;
+});
+</script>
+
+</body>
+</html>

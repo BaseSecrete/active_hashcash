@@ -7,13 +7,33 @@ module ActiveHashcash
       refute(ActiveHashcash::Stamp.parse(""))
       refute(ActiveHashcash::Stamp.parse("1:20:220623"))
 
-      str = "1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh"
-      assert_equal(str, ActiveHashcash::Stamp.parse(str).to_s)
+      str = "1:20:220623:test:sha256:MPWRGuN3itbd1NiQ:42"
+      parsed = ActiveHashcash::Stamp.parse(str)
+      assert_equal(str, parsed.to_s)
+      assert_equal("sha256", parsed.ext)
     end
 
     def test_authentic?
-      assert(ActiveHashcash::Stamp.parse("1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh").authentic?)
-      refute(ActiveHashcash::Stamp.parse("1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh_").authentic?)
+      stamp = ActiveHashcash::Stamp.mint("test", bits: 2)
+      assert(stamp.authentic?)
+      assert_equal("sha256", stamp.ext)
+
+      # Verify the digest is actually SHA-256
+      hex = Digest::SHA256.hexdigest(stamp.to_s)
+      assert_equal(0, hex.hex >> (256 - stamp.bits))
+    end
+
+    def test_authentic_rejects_invalid
+      stamp = ActiveHashcash::Stamp.mint("test", bits: 8)
+      # Tamper with the stamp
+      stamp.counter = "#{stamp.counter}_tampered"
+      refute(stamp.authentic?)
+    end
+
+    def test_mint_sets_sha256_ext
+      stamp = ActiveHashcash::Stamp.mint("resource", bits: 2)
+      assert_equal("sha256", stamp.ext)
+      assert(stamp.authentic?)
     end
 
     def test_verify
