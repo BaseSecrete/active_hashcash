@@ -47,6 +47,7 @@
     .bar-pure-js { background: #34d399; }
     .bar-webcrypto-seq { background: #a78bfa; }
     .bar-wasm { background: #f97316; }
+    .bar-webgpu { background: #facc15; }
     .bar-reference { background: #e879f9; }
 
     .legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem; font-size: 0.78rem; color: #555; }
@@ -67,7 +68,7 @@
 <body>
 
 <h1>Hashcash SHA-256 Benchmark Suite</h1>
-<p class="subtitle">Compare four SHA-256 proof-of-work implementations side-by-side: WebCrypto Batched, Pure JS, WebCrypto Sequential, and WASM (hash-wasm).</p>
+<p class="subtitle">Compare five SHA-256 proof-of-work implementations side-by-side: WebGPU Compute, WebCrypto Batched, Pure JS, WebCrypto Sequential, and WASM (hash-wasm).</p>
 
 <h2>Configuration</h2>
 
@@ -104,6 +105,7 @@
   <label><input type="checkbox" id="algo-pure-js" checked> Pure JS (Worker)</label>
   <label><input type="checkbox" id="algo-webcrypto-seq" checked> WebCrypto Sequential (Worker)</label>
   <label><input type="checkbox" id="algo-wasm" checked> WASM &mdash; hash-wasm (Worker)</label>
+  <label><input type="checkbox" id="algo-webgpu" checked> WebGPU SHA-256 (Worker)</label>
 </div>
 
 <div class="ref-section">
@@ -131,6 +133,7 @@
   <div class="legend-item"><div class="legend-swatch bar-pure-js"></div> Pure JS</div>
   <div class="legend-item"><div class="legend-swatch bar-webcrypto-seq"></div> WebCrypto Sequential</div>
   <div class="legend-item"><div class="legend-swatch bar-wasm"></div> WASM (hash-wasm)</div>
+  <div class="legend-item"><div class="legend-swatch bar-webgpu"></div> WebGPU</div>
   <div class="legend-item"><div class="legend-swatch bar-reference"></div> Reference</div>
 </div>
 
@@ -165,6 +168,7 @@
   <p><strong>Pure JS</strong> &mdash; A synchronous SHA-256 implementation (~90 lines) in a Web Worker. Zero async overhead &mdash; tight loop. This is what Alexis (BaseSecrete) suggested for maximizing client-side speed.</p>
   <p><strong>WebCrypto Sequential</strong> &mdash; One <code>await crypto.subtle.digest()</code> per nonce, no batching. Similar to how <a href="https://github.com/altcha-org/altcha">Altcha</a> does it (they compensate with multiple workers). Included as a baseline.</p>
   <p><strong>WASM (hash-wasm)</strong> &mdash; <a href="https://github.com/Daninet/hash-wasm">hash-wasm</a>'s hand-tuned WebAssembly SHA-256, loaded from CDN. Synchronous <code>init()</code>/<code>update()</code>/<code>digest()</code> loop in a Web Worker. The closest you can get to native C speed in a browser. Similar to how <a href="https://github.com/tiagozip/cap">Cap</a> uses compiled Rust&rarr;WASM for hashing.</p>
+  <p><strong>WebGPU Compute</strong> &mdash; Uses <code>navigator.gpu</code> to run SHA-256 as a WGSL compute shader, dispatching batches of 256k nonces in parallel on the GPU. <a href="https://web.dev/blog/webgpu-supported-major-browsers">Supported in all major browsers</a>: Chrome 113+, Edge 113+, Firefox 141+, Safari 26+. Extremely fast due to massive GPU parallelism, with some dispatch and readback overhead.</p>
   <p><strong>Dynamic batch size</strong> <code>2^(bits&minus;2)</code> &mdash; Alexis's suggestion. Scales with difficulty so bigger challenges use bigger batches.</p>
   <p style="margin-top:0.75rem"><strong>To get a C reference speed</strong>, install <a href="http://www.hashcash.org/">hashcash</a> and run:</p>
   <pre>hashcash -b20 -mS -r benchmark.example.com</pre>
@@ -539,13 +543,299 @@ function mintWASM(resource, bits) {
 }
 
 // ============================================================
+// 5. SHA-256 WebGPU Compute (Worker)
+// ============================================================
+function mintWebGPU(resource, bits) {
+  return new Promise(function(resolve, reject) {
+    var date = formatDate(), rand = randomString();
+    var prefix = "1:" + bits + ":" + date + ":" + resource + ":sha256:" + rand;
+
+    var workerCode = function() {
+      // SHA-256 constants for WGSL
+      var SHADER_CODE = `
+// SHA-256 round constants
+const K: array<u32, 64> = array<u32, 64>(
+  0x428a2f98u, 0x71374491u, 0xb5c0fbcfu, 0xe9b5dba5u, 0x3956c25bu, 0x59f111f1u, 0x923f82a4u, 0xab1c5ed5u,
+  0xd807aa98u, 0x12835b01u, 0x243185beu, 0x550c7dc3u, 0x72be5d74u, 0x80deb1feu, 0x9bdc06a7u, 0xc19bf174u,
+  0xe49b69c1u, 0xefbe4786u, 0x0fc19dc6u, 0x240ca1ccu, 0x2de92c6fu, 0x4a7484aau, 0x5cb0a9dcu, 0x76f988dau,
+  0x983e5152u, 0xa831c66du, 0xb00327c8u, 0xbf597fc7u, 0xc6e00bf3u, 0xd5a79147u, 0x06ca6351u, 0x14292967u,
+  0x27b70a85u, 0x2e1b2138u, 0x4d2c6dfcu, 0x53380d13u, 0x650a7354u, 0x766a0abbu, 0x81c2c92eu, 0x92722c85u,
+  0xa2bfe8a1u, 0xa81a664bu, 0xc24b8b70u, 0xc76c51a3u, 0xd192e819u, 0xd6990624u, 0xf40e3585u, 0x106aa070u,
+  0x19a4c116u, 0x1e376c08u, 0x2748774cu, 0x34b0bcb5u, 0x391c0cb3u, 0x4ed8aa4au, 0x5b9cca4fu, 0x682e6ff3u,
+  0x748f82eeu, 0x78a5636fu, 0x84c87814u, 0x8cc70208u, 0x90befffau, 0xa4506cebu, 0xbef9a3f7u, 0xc67178f2u
+);
+
+// Initial hash values
+const H_INIT: array<u32, 8> = array<u32, 8>(
+  0x6a09e667u, 0xbb67ae85u, 0x3c6ef372u, 0xa54ff53au,
+  0x510e527fu, 0x9b05688cu, 0x1f83d9abu, 0x5be0cd19u
+);
+
+struct Params {
+  base_counter: u32,
+  msg_len: u32,       // length of prefix (before counter digits)
+  bits: u32,
+  batch_size: u32,
+}
+
+@group(0) @binding(0) var<uniform> params: Params;
+@group(0) @binding(1) var<storage, read> msg_prefix: array<u32>;  // prefix bytes packed as u32
+@group(0) @binding(2) var<storage, read_write> results: array<u32>;  // [found_flag, found_counter]
+
+fn rotr(x: u32, n: u32) -> u32 {
+  return (x >> n) | (x << (32u - n));
+}
+
+fn sha256_compress(block: array<u32, 16>, h_in: array<u32, 8>) -> array<u32, 8> {
+  var W: array<u32, 64>;
+  for (var t = 0u; t < 16u; t++) { W[t] = block[t]; }
+  for (var t = 16u; t < 64u; t++) {
+    let s0 = rotr(W[t-15u], 7u) ^ rotr(W[t-15u], 18u) ^ (W[t-15u] >> 3u);
+    let s1 = rotr(W[t-2u], 17u) ^ rotr(W[t-2u], 19u) ^ (W[t-2u] >> 10u);
+    W[t] = W[t-16u] + s0 + W[t-7u] + s1;
+  }
+  var h = h_in;
+  for (var t = 0u; t < 64u; t++) {
+    let S1 = rotr(h[4], 6u) ^ rotr(h[4], 11u) ^ rotr(h[4], 25u);
+    let ch = (h[4] & h[5]) ^ (~h[4] & h[6]);
+    let temp1 = h[7] + S1 + ch + K[t] + W[t];
+    let S0 = rotr(h[0], 2u) ^ rotr(h[0], 13u) ^ rotr(h[0], 22u);
+    let maj = (h[0] & h[1]) ^ (h[0] & h[2]) ^ (h[1] & h[2]);
+    let temp2 = S0 + maj;
+    h[7] = h[6]; h[6] = h[5]; h[5] = h[4]; h[4] = h[3] + temp1;
+    h[3] = h[2]; h[2] = h[1]; h[1] = h[0]; h[0] = temp1 + temp2;
+  }
+  for (var i = 0u; i < 8u; i++) { h[i] = h[i] + h_in[i]; }
+  return h;
+}
+
+fn check_leading_zeros(h: array<u32, 8>, bits: u32) -> bool {
+  let full_words = bits / 32u;
+  let rem_bits = bits % 32u;
+  for (var i = 0u; i < full_words; i++) {
+    if (h[i] != 0u) { return false; }
+  }
+  if (rem_bits > 0u) {
+    let mask = 0xFFFFFFFFu << (32u - rem_bits);
+    if ((h[full_words] & mask) != 0u) { return false; }
+  }
+  return true;
+}
+
+fn write_counter(counter: u32, data: ptr<function, array<u32, 32>>, pos: u32) -> u32 {
+  var digits: array<u32, 10>;
+  var num_digits = 0u;
+  var n = counter;
+  if (n == 0u) {
+    digits[0] = 48u;
+    num_digits = 1u;
+  } else {
+    while (n > 0u) {
+      digits[num_digits] = 48u + (n % 10u);
+      num_digits++;
+      n = n / 10u;
+    }
+  }
+  var p = pos;
+  for (var i = 0u; i < num_digits; i++) {
+    let d = digits[num_digits - 1u - i];
+    let word_idx = p / 4u;
+    let byte_idx = p % 4u;
+    let shift = (3u - byte_idx) * 8u;
+    (*data)[word_idx] = (*data)[word_idx] | (d << shift);
+    p++;
+  }
+  return p;
+}
+
+fn set_byte(data: ptr<function, array<u32, 32>>, pos: u32, val: u32) {
+  let word_idx = pos / 4u;
+  let byte_idx = pos % 4u;
+  let shift = (3u - byte_idx) * 8u;
+  (*data)[word_idx] = (*data)[word_idx] | (val << shift);
+}
+
+@compute @workgroup_size(256)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+  let idx = gid.x;
+  if (idx >= params.batch_size) { return; }
+  if (results[0] != 0u) { return; }
+
+  let counter = params.base_counter + idx;
+  let prefix_len = params.msg_len;
+  let prefix_words = (prefix_len + 3u) / 4u;
+  let last_prefix_word = prefix_len / 4u;
+  let last_prefix_byte = prefix_len % 4u;
+
+  // 2 blocks (128 bytes) — supports messages up to 119 bytes.
+  var data: array<u32, 32>;
+  for (var i = 0u; i < 32u; i++) { data[i] = 0u; }
+  for (var i = 0u; i < prefix_words; i++) { data[i] = msg_prefix[i]; }
+  if (last_prefix_byte > 0u) {
+    let keep = 0xFFFFFFFFu << ((4u - last_prefix_byte) * 8u);
+    data[last_prefix_word] = data[last_prefix_word] & keep;
+  }
+
+  let msg_end = write_counter(counter, &data, prefix_len);
+  set_byte(&data, msg_end, 0x80u);
+  let bit_len = msg_end * 8u;
+
+  // Place length in the last word of the final block.
+  // Single block (msg_end <= 55): length at word 15.
+  // Two blocks (msg_end > 55): length at word 31.
+  if (msg_end > 55u) {
+    data[31] = bit_len;
+  } else {
+    data[15] = bit_len;
+  }
+
+  // Process first block.
+  var block: array<u32, 16>;
+  for (var i = 0u; i < 16u; i++) { block[i] = data[i]; }
+  var h = sha256_compress(block, H_INIT);
+
+  // Process second block if needed.
+  if (msg_end > 55u) {
+    for (var i = 0u; i < 16u; i++) { block[i] = data[i + 16u]; }
+    h = sha256_compress(block, h);
+  }
+
+  if (check_leading_zeros(h, params.bits)) {
+    results[0] = 1u;
+    results[1] = counter;
+  }
+}
+`;
+
+      self.addEventListener("message", async function(e) {
+        var d = e.data, prefix = d.prefix + ":", bits = d.bits;
+        var BATCH = 262144; // 256k nonces per dispatch
+
+        // Check WebGPU availability
+        if (typeof navigator === "undefined" || !navigator.gpu) {
+          self.postMessage({ error: "WebGPU not available" });
+          return;
+        }
+
+        var adapter, device;
+        try {
+          adapter = await navigator.gpu.requestAdapter();
+          if (!adapter) { self.postMessage({ error: "No WebGPU adapter" }); return; }
+          device = await adapter.requestDevice();
+        } catch(err) {
+          self.postMessage({ error: "WebGPU init failed: " + err.message });
+          return;
+        }
+
+        // Compile shader
+        var shaderModule = device.createShaderModule({ code: SHADER_CODE });
+
+        // Encode prefix as big-endian packed u32 array
+        var prefixBytes = [];
+        for (var i = 0; i < prefix.length; i++) {
+          prefixBytes.push(prefix.charCodeAt(i));
+        }
+        var prefixLen = prefixBytes.length;
+        // Pack into u32 big-endian
+        var prefixWords = Math.ceil(prefixLen / 4);
+        var prefixU32 = new Uint32Array(Math.max(prefixWords, 16));
+        for (var i = 0; i < prefixLen; i++) {
+          var wordIdx = Math.floor(i / 4);
+          var byteIdx = i % 4;
+          var shift = (3 - byteIdx) * 8;
+          prefixU32[wordIdx] |= (prefixBytes[i] << shift);
+        }
+
+        // Create buffers
+        var paramsBuffer = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+        var prefixBuffer = device.createBuffer({ size: prefixU32.byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+        var resultsBuffer = device.createBuffer({ size: 8, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST });
+        var readBuffer = device.createBuffer({ size: 8, usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST });
+
+        device.queue.writeBuffer(prefixBuffer, 0, prefixU32);
+
+        // Create pipeline
+        var pipeline = device.createComputePipeline({
+          layout: "auto",
+          compute: { module: shaderModule, entryPoint: "main" }
+        });
+
+        var bindGroup = device.createBindGroup({
+          layout: pipeline.getBindGroupLayout(0),
+          entries: [
+            { binding: 0, resource: { buffer: paramsBuffer } },
+            { binding: 1, resource: { buffer: prefixBuffer } },
+            { binding: 2, resource: { buffer: resultsBuffer } }
+          ]
+        });
+
+        var counter = 0;
+
+        async function dispatch() {
+          // Clear results
+          device.queue.writeBuffer(resultsBuffer, 0, new Uint32Array([0, 0]));
+
+          // Set params
+          var paramsData = new Uint32Array([counter, prefixLen, bits, BATCH]);
+          device.queue.writeBuffer(paramsBuffer, 0, paramsData);
+
+          // Dispatch
+          var commandEncoder = device.createCommandEncoder();
+          var passEncoder = commandEncoder.beginComputePass();
+          passEncoder.setPipeline(pipeline);
+          passEncoder.setBindGroup(0, bindGroup);
+          passEncoder.dispatchWorkgroups(Math.ceil(BATCH / 256));
+          passEncoder.end();
+
+          commandEncoder.copyBufferToBuffer(resultsBuffer, 0, readBuffer, 0, 8);
+          device.queue.submit([commandEncoder.finish()]);
+
+          // Read results
+          await readBuffer.mapAsync(GPUMapMode.READ);
+          var res = new Uint32Array(readBuffer.getMappedRange().slice(0));
+          readBuffer.unmap();
+
+          if (res[0] !== 0) {
+            self.postMessage({ found: true, counter: res[1] });
+            device.destroy();
+            return;
+          }
+
+          counter += BATCH;
+          setTimeout(dispatch, 0);
+        }
+
+        dispatch();
+      });
+    };
+
+    var w = makeWorker(workerCode);
+    var start = performance.now();
+    w.worker.onmessage = function(e) {
+      if (e.data.error) {
+        cleanupWorker(w.worker, w.url);
+        reject(new Error(e.data.error));
+        return;
+      }
+      if (e.data.found) {
+        cleanupWorker(w.worker, w.url);
+        resolve({ counter: e.data.counter, ms: performance.now() - start });
+      }
+    };
+    w.worker.onerror = function(e) { cleanupWorker(w.worker, w.url); reject(e); };
+    w.worker.postMessage({ prefix: prefix, bits: bits });
+  });
+}
+
+// ============================================================
 // Algo metadata
 // ============================================================
 var ALGO_META = {
   "webcrypto-batched": { label: "WebCrypto Batched (Worker)",   short: "WC Batch", bar: "bar-webcrypto-batched", fn: null },
   "pure-js":           { label: "Pure JS (Worker)",             short: "Pure JS",   bar: "bar-pure-js",           fn: null },
   "webcrypto-seq":     { label: "WebCrypto Sequential (Worker)",short: "WC Seq",    bar: "bar-webcrypto-seq",     fn: null },
-  "wasm":              { label: "WASM / hash-wasm (Worker)",    short: "WASM",      bar: "bar-wasm",              fn: null }
+  "wasm":              { label: "WASM / hash-wasm (Worker)",    short: "WASM",      bar: "bar-wasm",              fn: null },
+  "webgpu":            { label: "WebGPU Compute (Worker)",      short: "WebGPU",    bar: "bar-webgpu",            fn: null }
 };
 
 // ============================================================
@@ -580,6 +870,7 @@ runBtn.addEventListener("click", async function() {
   if (document.getElementById("algo-pure-js").checked) algos.push("pure-js");
   if (document.getElementById("algo-webcrypto-seq").checked) algos.push("webcrypto-seq");
   if (document.getElementById("algo-wasm").checked) algos.push("wasm");
+  if (document.getElementById("algo-webgpu").checked) algos.push("webgpu");
 
   if (algos.length === 0) { alert("Select at least one approach."); return; }
 
@@ -623,6 +914,7 @@ runBtn.addEventListener("click", async function() {
         else if (algo === "pure-js") result = await mintPureJS("benchmark.example.com", bits);
         else if (algo === "webcrypto-seq") result = await mintWebCryptoSeq("benchmark.example.com", bits);
         else if (algo === "wasm") result = await mintWASM("benchmark.example.com", bits);
+        else if (algo === "webgpu") result = await mintWebGPU("benchmark.example.com", bits);
       } catch (err) {
         console.error(algo, err);
         result = { counter: 0, ms: 0, error: true };
