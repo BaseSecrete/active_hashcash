@@ -57,5 +57,26 @@ module ActiveHashcash
       assert(ActiveHashcash::Stamp.spend(stamp.to_s, "resource", 2, Date.yesterday), "first time spent")
       refute(ActiveHashcash::Stamp.spend(stamp.to_s, "resource", 2, Date.yesterday), "cannot be spent twice")
     end
+
+    def test_authentic_sha1_backward_compatibility
+      # Simulate an old SHA-1 stamp (empty ext field)
+      stamp = ActiveHashcash::Stamp.new(
+        version: 1,
+        bits: 2,
+        date: Date.today,
+        resource: "test",
+        ext: "",
+        rand: SecureRandom.alphanumeric(16),
+        counter: 0
+      )
+      # Mine with SHA-1
+      loop do
+        break if Digest::SHA1.hexdigest(stamp.to_s).hex >> (160 - stamp.bits) == 0
+        stamp.counter = stamp.counter.to_i + 1
+      end
+      # The stamp should verify with SHA-1 fallback
+      assert(stamp.authentic?, "SHA-1 stamp with empty ext should be authentic")
+      assert_equal("", stamp.ext)
+    end
   end
 end

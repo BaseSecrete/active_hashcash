@@ -168,8 +168,6 @@
   <p><strong>Dynamic batch size</strong> <code>2^(bits&minus;2)</code> &mdash; Alexis's suggestion. Scales with difficulty so bigger challenges use bigger batches.</p>
   <p style="margin-top:0.75rem"><strong>To get a C reference speed</strong>, install <a href="http://www.hashcash.org/">hashcash</a> and run:</p>
   <pre>hashcash -b20 -mS -r benchmark.example.com</pre>
-  <p>Or use the included Ruby benchmark:</p>
-  <pre>cd active_hashcash &amp;&amp; bundle exec ruby benchmark/benchmark.rb</pre>
   <p>Then enter the hashes/sec number in the Reference field above.</p>
   <p style="margin-top:0.75rem"><strong>Why speed matters for security:</strong> The faster the JS client can mine, the smaller the advantage an attacker gets from using a compiled (C/Rust) implementation. Minimizing this ratio means the base difficulty (<code>bits</code>) can be set higher, improving protection against bots while keeping the UX acceptable for real users.</p>
 </div>

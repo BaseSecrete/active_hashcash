@@ -6,6 +6,10 @@ Hashcash = function(input) {
   input.dispatchEvent(new CustomEvent("hashcash:mint", {bubbles: true}))
 
   Hashcash.mint(options.resource, options, function(stamp) {
+    // Guard against Turbo navigation: if the input is no longer in the DOM,
+    // the user has navigated away and we should silently discard the result.
+    if (!input.isConnected) return
+
     input.value = stamp.toString()
     Hashcash.enableParentForm(input, options)
     input.dispatchEvent(new CustomEvent("hashcash:minted", {bubbles: true, detail: {stamp: stamp}}))
@@ -22,6 +26,36 @@ Hashcash.setup = function() {
   } else
     document.addEventListener("DOMContentLoaded", Hashcash.setup)
 }
+
+// Terminate the active worker and clean up its Blob URL.
+Hashcash.cleanup = function() {
+  if (Hashcash._worker) {
+    Hashcash._worker.terminate()
+    Hashcash._worker = null
+  }
+  if (Hashcash._workerUrl) {
+    URL.revokeObjectURL(Hashcash._workerUrl)
+    Hashcash._workerUrl = null
+  }
+}
+
+// Turbo Drive: terminate the worker when navigating away so it doesn't
+// complete after the page has changed, and restore the form state for
+// Turbo's page cache so the snapshot doesn't have disabled buttons.
+document.addEventListener("turbo:before-visit", Hashcash.cleanup)
+document.addEventListener("turbo:before-cache", function() {
+  Hashcash.cleanup()
+  var input = document.querySelector("input#hashcash")
+  if (input && input.form) {
+    input.value = ""
+    input.form.querySelectorAll("[type=submit]").forEach(function(submit) {
+      if (submit.originalValue) {
+        Hashcash.setSubmitText(submit, submit.originalValue)
+      }
+      submit.disabled = null
+    })
+  }
+})
 
 Hashcash.setSubmitText = function(submit, text) {
   if (!text) {
@@ -242,6 +276,9 @@ Hashcash.Stamp.prototype.work = function(callback) {
     });
   }
 
+  // Clean up any previous worker (e.g. Turbo restoring a cached page)
+  Hashcash.cleanup()
+
   var blob = new Blob(
     ["(" + workerCode.toString() + ")()"],
     {type: "application/javascript"}
@@ -249,8 +286,14 @@ Hashcash.Stamp.prototype.work = function(callback) {
   var workerUrl = URL.createObjectURL(blob)
   var worker = new Worker(workerUrl)
 
+  // Track the active worker so Hashcash.cleanup() can terminate it
+  Hashcash._worker = worker
+  Hashcash._workerUrl = workerUrl
+
   worker.onmessage = function(e) {
     if (e.data.found) {
+      Hashcash._worker = null
+      Hashcash._workerUrl = null
       self.counter = e.data.counter
       self.stopClock()
       worker.terminate()

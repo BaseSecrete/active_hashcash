@@ -63,7 +63,11 @@ module ActiveHashcash
     end
 
     def authentic?
-      Digest::SHA256.hexdigest(to_s).hex >> (256 - bits) == 0
+      if ext == "sha256"
+        Digest::SHA256.hexdigest(to_s).hex >> (256 - bits) == 0
+      else
+        Digest::SHA1.hexdigest(to_s).hex >> (160 - bits) == 0
+      end
     end
 
     def verify(resource, bits, date)
