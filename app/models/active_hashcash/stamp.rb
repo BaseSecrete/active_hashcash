@@ -26,6 +26,22 @@ module ActiveHashcash
       scope
     end
 
+    def self.sum_by_periods(periods)
+      return [] if periods.blank?
+
+      cutoffs = periods.map(&:ago)
+      columns = cutoffs.each_with_index.map do |cutoff, index|
+        if index.zero?
+          sanitize_sql(["sum(CASE WHEN created_at >= ? THEN 1 ELSE 0 END)", cutoff])
+        else
+          previous_cutoff = cutoffs[index - 1]
+          sanitize_sql(["sum(CASE WHEN created_at < ? AND created_at >= ? THEN 1 ELSE 0 END)", previous_cutoff, cutoff])
+        end
+      end.join(", ")
+
+      pluck(Arel.sql(columns)).first
+    end
+
     # Verify and save the hashcash stamp.
     # Saving in the database prevent from double spending the same stamp.
     def self.spend(string, resource, bits, date, options = {})

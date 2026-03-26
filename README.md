@@ -170,14 +170,49 @@ rails db:migrate
 
 ## Complexity
 
-Complexity is the most important parameter. By default its value is 20 and requires most of the time 5 to 20 seconds to be solved on a decent laptop.
-The user won't wait that long, since he needs to fill the form while the problem is solving.
-However, if your application includes people with slow and old devices, then consider lowering this value, to 16 or 18.
+Complexity controls the base proof-of-work difficulty.
+Increasing by one double the work time.
+By default its value is 20 and you can change it with `ActiveHashcash.bits = 24` or by overriding the method `hashcash_bits` in the controller.
 
-You can change the minimum complexity with `ActiveHashcash.bits = 20`.
+### Penalities
 
-Since version 0.3.0, the complexity increases with the number of stamps spent during le last 24H from the same IP address.
-Thus it becomes very efficient to slow down brute force attacks.
+A penality is added for pushy IPs which submit valid stamps too fast.
+The goal is to slow down attackers using a botnet.
+The penality rules can be defined like this.
+
+```ruby
+ActiveHashcash.penalty_rules = [
+  {period: 1.hour, rate: 0.5},
+  {period: 24.hours, rate: 0.25}
+]
+```
+
+For every valid stamps sent less than an hour ago, a penality of 0.5 is added.
+Then, for every valid stamp sent between 1 and 24 hours ago a penality of 0.25 is added.
+Thus, if an IP sent 1 stamp one minue ago, and 3 others few hours ago, it add a complexity of `(1 * 0.5 + 3 * 0.25).floor # => 1`.
+So next hashcash must have a complexity of `ActiveHashcash.bits + 1`.
+
+If you have many users behind the same IP, such as a NAT, you can either lower the rates or disable the penality.
+In your controller, override the method `hashcash_bits_penality`:
+
+```ruby
+class ApplicationController
+  def hashcash_bits_penality
+    # Only the base complexity (ActiveHashcash.bits) will apply for people with IP 1.2.3.4
+    hashcash_ip_address == "1.2.3.4" ? 0 : super
+  end
+end
+```
+
+Or, if someone is attacking you from a specific country:
+
+```ruby
+class ApplicationController
+  def hashcash_bits_penality
+    geoip.country(hashcash_ip_address).country_code == "XX" ? super + 2 : super
+  end
+end
+```
 
 ## Limitations
 

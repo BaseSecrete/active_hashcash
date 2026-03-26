@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add `ActiveHashcash.penality_rules` to slow down pushy IPs
 - Replace SHA-1 with SHA-256 for proof-of-work stamps
 - Mine stamps in a Web Worker using pure JS SHA-256 (keeps the main thread unblocked)
 - Support SHA-1 fallback on the backend for backward compatibility (via the `ext` stamp field)
