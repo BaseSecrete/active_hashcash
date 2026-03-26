@@ -181,14 +181,11 @@ Thus it becomes very efficient to slow down brute force attacks.
 
 ## Limitations
 
-The JavaScript implementation is 10 to 20 times slower than the official C version.
-I first used the SubtleCrypto API but it is surprisingly slower than a custom SHA1 implementation.
-Maybe I did in an inefficient way 2df3ba5?
-Another idea would be to compile the work algorithm in wasm.
+The JavaScript implementation is slower than the official C version.
+It uses a pure JS SHA-256 implementation running inside a Web Worker, which keeps the main thread responsive while mining.
+A synchronous tight loop avoids the per-call async overhead of `crypto.subtle.digest()`, making it the fastest browser-side approach across Chrome and Safari.
 
-Unfortunately, I'm not a JavaScript expert.
-Maybe you have good JS skills to optimize it?
-Any help would be appreciate to better fights bots and brute for attacks!
+No `crypto.subtle` or secure context (HTTPS) is required, so it works in any environment including plain HTTP during development.
 
 ## Contributing
 

@@ -7,13 +7,26 @@ module ActiveHashcash
       refute(ActiveHashcash::Stamp.parse(""))
       refute(ActiveHashcash::Stamp.parse("1:20:220623"))
 
-      str = "1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh"
-      assert_equal(str, ActiveHashcash::Stamp.parse(str).to_s)
+      str = "1:20:220623:test:sha256:MPWRGuN3itbd1NiQ:42"
+      parsed = ActiveHashcash::Stamp.parse(str)
+      assert_equal(str, parsed.to_s)
+      assert_equal("sha256", parsed.ext)
     end
 
     def test_authentic?
+      assert(ActiveHashcash::Stamp.parse("1:8:260326:test:sha256:DijFBDmOOfmEMXjk:450").authentic?)
+      refute(ActiveHashcash::Stamp.parse("1:8:260326:test:sha256:DijFBDmOOfmEMXjk:000").authentic?)
+    end
+
+    def test_authentic_sha1_backward_compatibility
       assert(ActiveHashcash::Stamp.parse("1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh").authentic?)
       refute(ActiveHashcash::Stamp.parse("1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh_").authentic?)
+    end
+
+    def test_mint_sets_sha256_ext
+      stamp = ActiveHashcash::Stamp.mint("resource", bits: 2)
+      assert_equal("sha256", stamp.ext)
+      assert(stamp.authentic?)
     end
 
     def test_verify

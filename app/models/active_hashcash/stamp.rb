@@ -36,7 +36,7 @@ module ActiveHashcash
       false
     end
 
-    # Pare and instanciate a stamp from a sting which respects the hashcash format:
+    # Parse and instantiate a stamp from a string which respects the hashcash format:
     #
     #   ver:bits:date:resource:[ext]:rand:counter
     def self.parse(string)
@@ -51,6 +51,7 @@ module ActiveHashcash
         bits: ActiveHashcash.bits,
         date: Date.today.strftime(ActiveHashcash.date_format),
         resource: resource,
+        ext: "sha256",
         rand: SecureRandom.alphanumeric(16),
         counter: 0,
       }.merge(attributes)).work
@@ -62,7 +63,11 @@ module ActiveHashcash
     end
 
     def authentic?
-      Digest::SHA1.hexdigest(to_s).hex >> (160-bits) == 0
+      if ext == "sha256"
+        Digest::SHA256.hexdigest(to_s).hex >> (256 - bits) == 0
+      else
+        Digest::SHA1.hexdigest(to_s).hex >> (160 - bits) == 0
+      end
     end
 
     def verify(resource, bits, date)

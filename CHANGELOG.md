@@ -1,5 +1,11 @@
 # Changelog of ActiveHashcash
 
+## Unreleased
+
+- Replace SHA-1 with SHA-256 for proof-of-work stamps
+- Mine stamps in a Web Worker using pure JS SHA-256 (keeps the main thread unblocked)
+- Support SHA-1 fallback on the backend for backward compatibility (via the `ext` stamp field)
+
 ## 0.4.0 (2025-05-15)
 
 - Prevent from password managers to submit the form before the stamp has been computed
