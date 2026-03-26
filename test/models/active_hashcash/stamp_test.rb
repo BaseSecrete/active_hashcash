@@ -14,20 +14,13 @@ module ActiveHashcash
     end
 
     def test_authentic?
-      stamp = ActiveHashcash::Stamp.mint("test", bits: 2)
-      assert(stamp.authentic?)
-      assert_equal("sha256", stamp.ext)
-
-      # Verify the digest is actually SHA-256
-      hex = Digest::SHA256.hexdigest(stamp.to_s)
-      assert_equal(0, hex.hex >> (256 - stamp.bits))
+      assert(ActiveHashcash::Stamp.parse("1:8:260326:test:sha256:DijFBDmOOfmEMXjk:450").authentic?)
+      refute(ActiveHashcash::Stamp.parse("1:8:260326:test:sha256:DijFBDmOOfmEMXjk:000").authentic?)
     end
 
-    def test_authentic_rejects_invalid
-      stamp = ActiveHashcash::Stamp.mint("test", bits: 8)
-      # Tamper with the stamp
-      stamp.counter = "#{stamp.counter}_tampered"
-      refute(stamp.authentic?)
+    def test_authentic_sha1_backward_compatibility
+      assert(ActiveHashcash::Stamp.parse("1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh").authentic?)
+      refute(ActiveHashcash::Stamp.parse("1:20:220623:test::MPWRGuN3itbd1NiQ:00000000000003krh_").authentic?)
     end
 
     def test_mint_sets_sha256_ext
@@ -56,27 +49,6 @@ module ActiveHashcash
       refute(ActiveHashcash::Stamp.spend(stamp.to_s, "resource2", 2, Date.yesterday), "wrong resource")
       assert(ActiveHashcash::Stamp.spend(stamp.to_s, "resource", 2, Date.yesterday), "first time spent")
       refute(ActiveHashcash::Stamp.spend(stamp.to_s, "resource", 2, Date.yesterday), "cannot be spent twice")
-    end
-
-    def test_authentic_sha1_backward_compatibility
-      # Simulate an old SHA-1 stamp (empty ext field)
-      stamp = ActiveHashcash::Stamp.new(
-        version: 1,
-        bits: 2,
-        date: Date.today,
-        resource: "test",
-        ext: "",
-        rand: SecureRandom.alphanumeric(16),
-        counter: 0
-      )
-      # Mine with SHA-1
-      loop do
-        break if Digest::SHA1.hexdigest(stamp.to_s).hex >> (160 - stamp.bits) == 0
-        stamp.counter = stamp.counter.to_i + 1
-      end
-      # The stamp should verify with SHA-1 fallback
-      assert(stamp.authentic?, "SHA-1 stamp with empty ext should be authentic")
-      assert_equal("", stamp.ext)
     end
   end
 end
