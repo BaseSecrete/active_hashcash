@@ -214,6 +214,23 @@ class ApplicationController
 end
 ```
 
+## Testing Your Application
+
+To keep your test suite fast set `ActiveHashcash.bits = 1` in `test_helper.rb`.
+
+Use `ActiveHashcash::Stamp.mint` to submit hashcash to your sensitive forms:
+
+```ruby
+class SessionControllerTest < ActionDispatch::IntegrationTest
+  def test_create
+    # ...
+    hashcash = ActiveHashcash::Stamp.mint(host).to_s
+    post(session_path, params: {email: email, password: password, hashcash: hashcash})
+    # ...
+  end
+end
+```
+
 ## Limitations
 
 The JavaScript implementation is slower than the official C version.
