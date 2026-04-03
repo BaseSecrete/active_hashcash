@@ -30,6 +30,8 @@ module ActiveHashcash
 
   mattr_accessor :date_format, instance_accessor: false, default: "%y%m%d"
 
+  mattr_accessor :debug, instance_accessor: false, default: false
+
   mattr_accessor :base_controller_class, default: "ActionController::Base"
 
   # Call that method via a before_action when the form is submitted:
@@ -118,7 +120,7 @@ module ActiveHashcash
   #   <% end %>
   #
   def hashcash_hidden_field_tag(name = :hashcash)
-    options = {resource: hashcash_resource, bits: hashcash_bits, waiting_message: hashcash_waiting_message}
+    options = {resource: hashcash_resource, bits: hashcash_bits, waiting_message: hashcash_waiting_message, debug: ActiveHashcash.debug}
     view_context.hidden_field_tag(name, "", "data-hashcash" => options.to_json)
   end
 end
