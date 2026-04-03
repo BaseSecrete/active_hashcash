@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Replace SHA-1 with SHA-256 for proof-of-work stamps
-- Mine stamps in a Web Worker using pure JS SHA-256 (keeps the main thread unblocked)
+- Mine stamps in a Web Worker using WebGPU compute shader (order of magnitude faster), with automatic fallback to pure JS SHA-256 for older browsers
 - Support SHA-1 fallback on the backend for backward compatibility (via the `ext` stamp field)
 
 ## 0.4.0 (2025-05-15)
