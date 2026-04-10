@@ -3,8 +3,7 @@ class SessionsController < ApplicationController
 
   before_action :check_hashcash, only: :create
 
-  def index
-  end
+  ActiveHashcash.debug = true
 
   def create
     render(inline: "OK")
