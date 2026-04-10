@@ -493,6 +493,13 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {\
     if (!adapter) throw new Error("No WebGPU adapter");
     var device = await adapter.requestDevice();
 
+    // 1D dispatch: workgroup count must be ≤ maxComputeWorkgroupsPerDimension (often 65535).
+    // If BATCH is too large, validation can fail or only part of the grid may run — but we
+    // still advance `counter` by the full BATCH, skipping most nonces and breaking mining.
+    var wgLimit = device.limits.maxComputeWorkgroupsPerDimension;
+    var maxWorkgroupsX = typeof wgLimit === "number" ? wgLimit : (wgLimit && wgLimit.width) || 65535;
+    var maxInvocationsPerDispatch = maxWorkgroupsX * 256;
+
     device.lost.then(function(info) {
       dbg("Device lost: " + info.reason + " - " + info.message);
     });
@@ -525,7 +532,10 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {\
       prefixU32[wordIdx] |= (prefixBytes[i] << shift);
     }
 
-    var BATCH = 262144; // 256k nonces per GPU dispatch
+    // Larger batches for high `bits` (more nonces per dispatch), but never exceed what one
+    // legal dispatchWorkgroups() can cover (256 threads × max workgroups on X).
+    var desiredBatch = Math.max(Math.pow(2, bits - 2), Math.pow(2, 18));
+    var BATCH = Math.min(desiredBatch, maxInvocationsPerDispatch);
 
     var paramsBuffer = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
     var prefixBuffer = device.createBuffer({ size: prefixU32.byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
@@ -549,7 +559,12 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {\
     });
 
     var counter = 0;
-    var MAX_DISPATCHES = 200; // Safety limit: 200 * 262144 = ~52M nonces
+    // When BATCH is capped to maxInvocationsPerDispatch, raise the dispatch count so total
+    // tried nonces stay well above expected work (~2^bits). Cap bits in the budget so a
+    // maliciously large `bits` cannot request an unbounded loop.
+    var bitsBudget = Math.min(bits, 34);
+    var MIN_TOTAL_NONCES = Math.max(200 * 262144, 32 * Math.pow(2, bitsBudget));
+    var MAX_DISPATCHES = Math.max(200, Math.ceil(MIN_TOTAL_NONCES / BATCH));
     var dispatches = 0;
     var dispatchStartTime = performance.now();
 
