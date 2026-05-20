@@ -71,7 +71,7 @@ module ActiveHashcash
     end
 
     def verify(resource, bits, date)
-      self.resource == resource && self.bits >= bits && self.date >= date && !self.date.future? && authentic?
+      self.resource == resource && self.bits >= bits && self.date >= date && self.date <= Date.tomorrow && authentic?
     end
 
     def to_s

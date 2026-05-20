@@ -5,6 +5,7 @@
 - Replace SHA-1 with SHA-256 for proof-of-work stamps
 - Mine stamps in a Web Worker using pure JS SHA-256 (keeps the main thread unblocked)
 - Support SHA-1 fallback on the backend for backward compatibility (via the `ext` stamp field)
+- Accept stamps dated up to tomorrow (server UTC) to tolerate clients in timezones ahead of the server
 
 ## 0.4.0 (2025-05-15)
 
