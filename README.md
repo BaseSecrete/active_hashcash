@@ -179,6 +179,15 @@ You can change the minimum complexity with `ActiveHashcash.bits = 20`.
 Since version 0.3.0, the complexity increases with the number of stamps spent during le last 24H from the same IP address.
 Thus it becomes very efficient to slow down brute force attacks.
 
+## Testing
+
+Browser tests submit the real form, so they have to compute a real stamp. At the default 16 bits this adds noticeable time to every submission and slows down your suite. Drop the complexity in the test environment so it finishes almost instantly:
+
+```ruby
+# spec/rails_helper.rb (RSpec) or test/test_helper.rb (Minitest)
+ActiveHashcash.bits = 2
+```
+
 ## Limitations
 
 The JavaScript implementation is slower than the official C version.
