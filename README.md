@@ -188,6 +188,12 @@ Browser tests submit the real form, so they have to compute a real stamp. At the
 ActiveHashcash.bits = 2
 ```
 
+In controller tests, provide the hashcash this way:
+
+```ruby
+post(url, params: {hashcash: ActiveHashcash::Stamp.mint(host).to_s})
+```
+
 ## Limitations
 
 The JavaScript implementation is slower than the official C version.
