@@ -1,6 +1,6 @@
 # Changelog of ActiveHashcash
 
-## Unreleased
+## 0.5.0 (2026-08-08)
 
 - Fix stamp date mismatch by using server date instead of client
 - Replace SHA-1 with SHA-256 for proof-of-work stamps
