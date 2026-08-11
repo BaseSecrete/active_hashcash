@@ -193,11 +193,11 @@ Thus, if an IP sent 1 stamp one minue ago, and 3 others few hours ago, it add a 
 So next hashcash must have a complexity of `ActiveHashcash.bits + 1`.
 
 If you have many users behind the same IP, such as a NAT, you can either lower the rates or disable the penality.
-In your controller, override the method `hashcash_bits_penality`:
+In your controller, override the method `hashcash_throttle_penality`:
 
 ```ruby
 class ApplicationController
-  def hashcash_bits_penality
+  def hashcash_throttle_penality
     # Only the base complexity (ActiveHashcash.bits) will apply for people with IP 1.2.3.4
     hashcash_ip_address == "1.2.3.4" ? 0 : super
   end
@@ -208,7 +208,7 @@ Or, if someone is attacking you from a specific country:
 
 ```ruby
 class ApplicationController
-  def hashcash_bits_penality
+  def hashcash_throttle_penality
     geoip.country(hashcash_ip_address).country_code == "XX" ? super + 2 : super
   end
 end
