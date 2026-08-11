@@ -26,6 +26,8 @@ module ActiveHashcash
       scope
     end
 
+    # Returns stamp counts per period for disjoint windows.
+    # +periods+ must be sorted shortest to longest (as ensured by ActiveHashcash.throttle_rules=).
     def self.sum_by_periods(periods)
       return [] if periods.blank?
 
@@ -38,8 +40,7 @@ module ActiveHashcash
           sanitize_sql(["sum(CASE WHEN created_at < ? AND created_at >= ? THEN 1 ELSE 0 END)", previous_cutoff, cutoff])
         end
       end.join(", ")
-
-      pluck(Arel.sql(columns)).first
+      Array.wrap(pluck(Arel.sql(columns)).first)
     end
 
     # Verify and save the hashcash stamp.

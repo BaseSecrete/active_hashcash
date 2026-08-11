@@ -34,7 +34,7 @@ module ActiveHashcash
   # Each rule must be a hash with:
   # - :period => time window considered (e.g. 5.minutes, 1.hour, 1.day)
   # - :rate => multiplier applied to the number of stamps in that window
-  # Rules are applied from shortest to longest period.
+  # Assignment sorts rules from shortest to longest period.
   #
   # Example:
   #   ActiveHashcash.throttle_rules = [
@@ -42,10 +42,14 @@ module ActiveHashcash
   #     {period: 1.hour, rate: 0.34},
   #     {period: 1.day, rate: 0.25}
   #   ]
-  mattr_accessor :throttle_rules, instance_accessor: false, default: [
+  mattr_reader :throttle_rules, instance_accessor: false, default: [
     {period: 1.hour, rate: 0.5},
     {period: 24.hours, rate: 0.25}
   ]
+
+  def self.throttle_rules=(rules)
+    @@throttle_rules = rules && rules.sort_by { |rule| rule[:period] }
+  end
 
   mattr_accessor :date_format, instance_accessor: false, default: "%y%m%d"
 

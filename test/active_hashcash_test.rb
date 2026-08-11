@@ -39,4 +39,18 @@ class ActiveHashcashTest < ActiveSupport::TestCase
     assert_equal((bits + 4 * 0.5 + 4 * 0.25).floor, controller.hashcash_bits)
   end
 
+  def test_throttle_rules_are_sorted
+    old_rules = ActiveHashcash.throttle_rules
+    ActiveHashcash.throttle_rules = [
+      {period: 24.hours, rate: 0.25},
+      {period: 5.minutes, rate: 1.0},
+      {period: 1.hour, rate: 0.5}
+    ]
+
+    assert_equal([5.minutes, 1.hour, 24.hours], ActiveHashcash.throttle_rules.map { |rule| rule[:period] })
+    assert_equal([1.0, 0.5, 0.25], ActiveHashcash.throttle_rules.map { |rule| rule[:rate] })
+  ensure
+    ActiveHashcash.throttle_rules = old_rules
+  end
+
 end
