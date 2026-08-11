@@ -233,7 +233,7 @@ end
 
 ## Testing
 
-Browser tests submit the real form, so they have to compute a real stamp. At the default 16 bits this adds noticeable time to every submission and slows down your suite. Drop the complexity in the test environment so it finishes almost instantly:
+Browser tests submit the real form, so they have to compute a real stamp. At the default complexity this adds noticeable time to every submission and slows down your suite. Drop the complexity in the test environment so it finishes almost instantly:
 
 ```ruby
 # spec/rails_helper.rb (RSpec) or test/test_helper.rb (Minitest)
