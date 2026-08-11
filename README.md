@@ -231,6 +231,21 @@ class SessionControllerTest < ActionDispatch::IntegrationTest
 end
 ```
 
+## Testing
+
+Browser tests submit the real form, so they have to compute a real stamp. At the default 16 bits this adds noticeable time to every submission and slows down your suite. Drop the complexity in the test environment so it finishes almost instantly:
+
+```ruby
+# spec/rails_helper.rb (RSpec) or test/test_helper.rb (Minitest)
+ActiveHashcash.bits = 2
+```
+
+In controller tests, provide the hashcash this way:
+
+```ruby
+post(url, params: {hashcash: ActiveHashcash::Stamp.mint(host).to_s})
+```
+
 ## Limitations
 
 The JavaScript implementation is slower than the official C version.

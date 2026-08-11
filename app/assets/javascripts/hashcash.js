@@ -94,21 +94,24 @@ Hashcash.default = {
 }
 
 Hashcash.mint = function(resource, options, callback) {
-  // Format date to YYMMDD
+  var stamp = new Hashcash.Stamp(
+    options.version || Hashcash.default.version,
+    options.bits || Hashcash.default.bits,
+    options.date || Hashcash.formatToday(),
+    resource,
+    options.rand || Math.random().toString(36).substr(2, 10)
+  )
+  return stamp.work(callback)
+}
+
+// Format date to YYMMDD
+Hashcash.formatToday = function() {
   var date = new Date
   var year = date.getFullYear().toString()
   year = year.slice(year.length - 2, year.length)
   var month = (date.getMonth() + 1).toString().padStart(2, "0")
   var day = date.getDate().toString().padStart(2, "0")
-
-  var stamp = new Hashcash.Stamp(
-    options.version || Hashcash.default.version,
-    options.bits || Hashcash.default.bits,
-    options.date || year + month + day,
-    resource,
-    options.rand || Math.random().toString(36).substr(2, 10)
-  )
-  return stamp.work(callback)
+  return year + month + day
 }
 
 Hashcash.Stamp = function(version, bits, date, resource, rand, counter) {

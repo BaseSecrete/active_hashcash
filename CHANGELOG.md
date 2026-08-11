@@ -3,6 +3,10 @@
 ## Unreleased
 
 - Add `ActiveHashcash.penality_rules` to slow down pushy IPs
+
+## 0.5.0 (2026-08-08)
+
+- Fix stamp date mismatch by using server date instead of client
 - Replace SHA-1 with SHA-256 for proof-of-work stamps
 - Mine stamps in a Web Worker using pure JS SHA-256 (keeps the main thread unblocked)
 - Support SHA-1 fallback on the backend for backward compatibility (via the `ext` stamp field)
