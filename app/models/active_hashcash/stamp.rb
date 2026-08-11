@@ -40,7 +40,8 @@ module ActiveHashcash
           sanitize_sql(["sum(CASE WHEN created_at < ? AND created_at >= ? THEN 1 ELSE 0 END)", previous_cutoff, cutoff])
         end
       end.join(", ")
-      Array.wrap(pluck(Arel.sql(columns)).first)
+
+      Array.wrap(where(created_at: cutoffs.min..).pluck(Arel.sql(columns)).first)
     end
 
     # Verify and save the hashcash stamp.
