@@ -181,7 +181,7 @@ The goal is to slow down attackers using a botnet.
 The penality rules can be defined like this.
 
 ```ruby
-ActiveHashcash.penalty_rules = [
+ActiveHashcash.throttle_rules = [
   {period: 1.hour, rate: 0.5},
   {period: 24.hours, rate: 0.25}
 ]

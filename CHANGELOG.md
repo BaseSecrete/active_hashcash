@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Add `ActiveHashcash.penality_rules` to slow down pushy IPs
+- Add `ActiveHashcash.throttle_rules` to slow down pushy IPs
 
 ## 0.5.0 (2026-08-08)
 

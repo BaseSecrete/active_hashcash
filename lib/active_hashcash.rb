@@ -37,12 +37,12 @@ module ActiveHashcash
   # Rules are applied from shortest to longest period.
   #
   # Example:
-  #   ActiveHashcash.penalty_rules = [
+  #   ActiveHashcash.throttle_rules = [
   #     {period: 5.minutes, rate: 0.5},
   #     {period: 1.hour, rate: 0.34},
   #     {period: 1.day, rate: 0.25}
   #   ]
-  mattr_accessor :penalty_rules, instance_accessor: false, default: [
+  mattr_accessor :throttle_rules, instance_accessor: false, default: [
     {period: 1.hour, rate: 0.5},
     {period: 24.hours, rate: 0.25}
   ]
@@ -108,9 +108,9 @@ module ActiveHashcash
   end
 
   # Compute a penality for pushy IPs.
-  # The penality rules can be define with `ActiveHashcash.penality_rules`.
+  # The penality rules can be define with `ActiveHashcash.throttle_rules`.
   def hashcash_throttle_penality
-    rules = ActiveHashcash.penalty_rules || []
+    rules = ActiveHashcash.throttle_rules || []
     periods = rules.map { |rule| rule[:period] }
     counts = ActiveHashcash::Stamp.where(ip_address: hashcash_ip_address).sum_by_periods(periods)
     rules.each_with_index.sum { |rule, index| counts[index].to_i * rule[:rate].to_f }
