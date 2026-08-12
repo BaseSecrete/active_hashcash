@@ -49,6 +49,7 @@ module ActiveHashcash
 
   def self.throttle_rules=(rules)
     rules&.each do |rule|
+      raise ArgumentError, "ActiveHashcash.throttle_rules period must be present" if rule[:period].nil?
       raise ArgumentError, "ActiveHashcash.throttle_rules rate must be >= 0" if rule[:rate].to_f.negative?
     end
     @@throttle_rules = rules && rules.sort_by { |rule| rule[:period] }
