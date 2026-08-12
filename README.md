@@ -220,7 +220,12 @@ end
 
 ## Testing Your Application
 
-To keep your test suite fast set `ActiveHashcash.bits = 1` in `test_helper.rb`.
+Browser tests submit the real form, so they have to compute a real stamp. At the default complexity this adds noticeable time to every submission and slows down your suite. Drop the complexity in the test environment so it finishes almost instantly:
+
+```ruby
+# spec/rails_helper.rb (RSpec) or test/test_helper.rb (Minitest)
+ActiveHashcash.bits = 1
+```
 
 Use `ActiveHashcash::Stamp.mint` to submit hashcash to your sensitive forms:
 
@@ -233,21 +238,6 @@ class SessionControllerTest < ActionDispatch::IntegrationTest
     # ...
   end
 end
-```
-
-## Testing
-
-Browser tests submit the real form, so they have to compute a real stamp. At the default complexity this adds noticeable time to every submission and slows down your suite. Drop the complexity in the test environment so it finishes almost instantly:
-
-```ruby
-# spec/rails_helper.rb (RSpec) or test/test_helper.rb (Minitest)
-ActiveHashcash.bits = 2
-```
-
-In controller tests, provide the hashcash this way:
-
-```ruby
-post(url, params: {hashcash: ActiveHashcash::Stamp.mint(host).to_s})
 ```
 
 ## Limitations
