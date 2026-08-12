@@ -53,4 +53,15 @@ class ActiveHashcashTest < ActiveSupport::TestCase
     ActiveHashcash.throttle_rules = old_rules
   end
 
+  def test_throttle_rules_reject_negative_rate
+    old_rules = ActiveHashcash.throttle_rules
+
+    assert_raises(ArgumentError) do
+      ActiveHashcash.throttle_rules = [{period: 1.hour, rate: -0.5}]
+    end
+    assert_equal(old_rules, ActiveHashcash.throttle_rules)
+  ensure
+    ActiveHashcash.throttle_rules = old_rules
+  end
+
 end
