@@ -153,21 +153,6 @@ authenticate :user, -> (u) { u.admin? } do # Supposing there is a User#admin? me
 end
 ```
 
-### Before version 0.3.0
-
-You must have Redis in order to prevent double spent stamps. Otherwise it will be useless.
-It automatically tries to connect with the environment variables `ACTIVE_HASHCASH_REDIS_URL` or `REDIS_URL`.
-You can also manually set the URL with `ActiveHashcash.redis_url = redis://user:password@localhost:6379`.
-
-You should call `ActiveHashcash::Store#clean` once a day, to remove expired stamps.
-
-To upgrade from 0.2.0 you must run the migration :
-
-```
-rails active_hashcash:install:migrations
-rails db:migrate
-```
-
 ## Complexity
 
 Complexity controls the base proof-of-work difficulty.
@@ -247,6 +232,21 @@ It uses a pure JS SHA-256 implementation running inside a Web Worker, which keep
 A synchronous tight loop avoids the per-call async overhead of `crypto.subtle.digest()`, making it the fastest browser-side approach across Chrome and Safari.
 
 No `crypto.subtle` or secure context (HTTPS) is required, so it works in any environment including plain HTTP during development.
+
+### Before version 0.3.0
+
+You must have Redis in order to prevent double spent stamps. Otherwise it will be useless.
+It automatically tries to connect with the environment variables `ACTIVE_HASHCASH_REDIS_URL` or `REDIS_URL`.
+You can also manually set the URL with `ActiveHashcash.redis_url = redis://user:password@localhost:6379`.
+
+You should call `ActiveHashcash::Store#clean` once a day, to remove expired stamps.
+
+To upgrade from 0.2.0 you must run the migration :
+
+```
+rails active_hashcash:install:migrations
+rails db:migrate
+```
 
 ## Contributing
 
