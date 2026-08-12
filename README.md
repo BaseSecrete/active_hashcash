@@ -171,14 +171,14 @@ rails db:migrate
 ## Complexity
 
 Complexity controls the base proof-of-work difficulty.
-Increasing by one double the work time.
+Increasing by one doubles the work time.
 By default its value is 20 and you can change it with `ActiveHashcash.bits = 24` or by overriding the method `hashcash_bits` in the controller.
 
-### Penalities
+### Penalties
 
-A penality is added for pushy IPs which submit valid stamps too fast.
+A penalty is added for pushy IPs which submit valid stamps too fast.
 The goal is to slow down attackers using a botnet.
-The penality rules can be defined like this.
+The penalty rules can be defined like this.
 
 ```ruby
 ActiveHashcash.throttle_rules = [
@@ -187,19 +187,19 @@ ActiveHashcash.throttle_rules = [
 ]
 ```
 
-For every valid stamps sent less than an hour ago, a penality of 0.5 is added.
-Then, for every valid stamp sent between 1 and 24 hours ago a penality of 0.25 is added.
-Thus, if an IP sent 1 stamp one minue ago, and 3 others few hours ago, it add a complexity of `(1 * 0.5 + 3 * 0.25).floor # => 1`.
+For every valid stamp sent less than an hour ago, a penalty of 0.5 is added.
+Then, for every valid stamp sent between 1 and 24 hours ago a penalty of 0.25 is added.
+Thus, if an IP sent 1 stamp one minute ago, and 3 others few hours ago, it adds a complexity of `(1 * 0.5 + 3 * 0.25).floor # => 1`.
 So next hashcash must have a complexity of `ActiveHashcash.bits + 1`.
 
-If you have many users behind the same IP, such as a NAT, you can either lower the rates or disable the penality.
-In your controller, override the method `hashcash_throttle_penality`:
+If you have many users behind the same IP, such as a NAT, you can either lower the rates or disable the penalty.
+In your controller, override the method `hashcash_throttle_penalty`:
 
 ```ruby
 class SessionController < ApplicationController
   include ActiveHashcash
 
-  def hashcash_throttle_penality
+  def hashcash_throttle_penalty
     # Only the base complexity (ActiveHashcash.bits) will apply for people with IP 1.2.3.4
     hashcash_ip_address == "1.2.3.4" ? 0 : super
   end
@@ -212,7 +212,7 @@ Or, if someone is attacking you from a specific country:
 class SessionController < ApplicationController
   include ActiveHashcash
 
-  def hashcash_throttle_penality
+  def hashcash_throttle_penalty
     geoip.country(hashcash_ip_address).country_code == "XX" ? super + 2 : super
   end
 end

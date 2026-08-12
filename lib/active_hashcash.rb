@@ -109,14 +109,14 @@ module ActiveHashcash
   end
 
   # Returns the complexity, the higher the slower it is.
-  # Evantully adds a penality for pushy IPs, see hashcash_throttle_penality.
+  # Eventually adds a penalty for pushy IPs, see hashcash_throttle_penalty.
   def hashcash_bits
-    (ActiveHashcash.bits + hashcash_throttle_penality).floor
+    (ActiveHashcash.bits + hashcash_throttle_penalty).floor
   end
 
-  # Compute a penality for pushy IPs.
-  # The penality rules can be define with `ActiveHashcash.throttle_rules`.
-  def hashcash_throttle_penality
+  # Compute a penalty for pushy IPs.
+  # The penalty rules can be defined with `ActiveHashcash.throttle_rules`.
+  def hashcash_throttle_penalty
     rules = ActiveHashcash.throttle_rules || []
     periods = rules.map { |rule| rule[:period] }
     counts = ActiveHashcash::Stamp.where(ip_address: hashcash_ip_address).sum_by_periods(periods)
