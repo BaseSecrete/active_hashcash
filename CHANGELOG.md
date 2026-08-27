@@ -1,5 +1,9 @@
 # Changelog of ActiveHashcash
 
+## Unreleased
+
+- Add `ActiveHashcash.throttle_rules` to slow down pushy IPs
+
 ## 0.5.0 (2026-08-08)
 
 - Fix stamp date mismatch by using server date instead of client

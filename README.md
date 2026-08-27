@@ -153,6 +153,86 @@ authenticate :user, -> (u) { u.admin? } do # Supposing there is a User#admin? me
 end
 ```
 
+## Complexity
+
+Complexity controls the base proof-of-work difficulty.
+Increasing by one doubles the work time.
+By default its value is 20 and you can change it with `ActiveHashcash.bits = 24` or by overriding the method `hashcash_bits` in the controller.
+
+### Penalties
+
+A penalty is added for pushy IPs which submit valid stamps too fast.
+The goal is to slow down attackers using a botnet.
+The penalty rules can be defined like this.
+
+```ruby
+ActiveHashcash.throttle_rules = [
+  {period: 1.hour, rate: 0.5},
+  {period: 24.hours, rate: 0.25}
+]
+```
+
+For every valid stamp sent less than an hour ago, a penalty of 0.5 is added.
+Then, for every valid stamp sent between 1 and 24 hours ago a penalty of 0.25 is added.
+Thus, if an IP sent 1 stamp one minute ago, and 3 others few hours ago, it adds a complexity of `(1 * 0.5 + 3 * 0.25).floor # => 1`.
+So next hashcash must have a complexity of `ActiveHashcash.bits + 1`.
+
+If you have many users behind the same IP, such as a NAT, you can either lower the rates or disable the penalty.
+In your controller, override the method `hashcash_throttle_penalty`:
+
+```ruby
+class SessionController < ApplicationController
+  include ActiveHashcash
+
+  def hashcash_throttle_penalty
+    # Only the base complexity (ActiveHashcash.bits) will apply for people with IP 1.2.3.4
+    hashcash_ip_address == "1.2.3.4" ? 0 : super
+  end
+end
+```
+
+Or, if someone is attacking you from a specific country:
+
+```ruby
+class SessionController < ApplicationController
+  include ActiveHashcash
+
+  def hashcash_throttle_penalty
+    geoip.country(hashcash_ip_address).country_code == "XX" ? super + 2 : super
+  end
+end
+```
+
+## Testing Your Application
+
+Browser tests submit the real form, so they have to compute a real stamp. At the default complexity this adds noticeable time to every submission and slows down your suite. Drop the complexity in the test environment so it finishes almost instantly:
+
+```ruby
+# spec/rails_helper.rb (RSpec) or test/test_helper.rb (Minitest)
+ActiveHashcash.bits = 1
+```
+
+Use `ActiveHashcash::Stamp.mint` to submit hashcash to your sensitive forms:
+
+```ruby
+class SessionControllerTest < ActionDispatch::IntegrationTest
+  def test_create
+    # ...
+    hashcash = ActiveHashcash::Stamp.mint(host).to_s
+    post(session_path, params: {email: email, password: password, hashcash: hashcash})
+    # ...
+  end
+end
+```
+
+## Limitations
+
+The JavaScript implementation is slower than the official C version.
+It uses a pure JS SHA-256 implementation running inside a Web Worker, which keeps the main thread responsive while mining.
+A synchronous tight loop avoids the per-call async overhead of `crypto.subtle.digest()`, making it the fastest browser-side approach across Chrome and Safari.
+
+No `crypto.subtle` or secure context (HTTPS) is required, so it works in any environment including plain HTTP during development.
+
 ### Before version 0.3.0
 
 You must have Redis in order to prevent double spent stamps. Otherwise it will be useless.
@@ -167,40 +247,6 @@ To upgrade from 0.2.0 you must run the migration :
 rails active_hashcash:install:migrations
 rails db:migrate
 ```
-
-## Complexity
-
-Complexity is the most important parameter. By default its value is 20 and requires most of the time 5 to 20 seconds to be solved on a decent laptop.
-The user won't wait that long, since he needs to fill the form while the problem is solving.
-However, if your application includes people with slow and old devices, then consider lowering this value, to 16 or 18.
-
-You can change the minimum complexity with `ActiveHashcash.bits = 20`.
-
-Since version 0.3.0, the complexity increases with the number of stamps spent during le last 24H from the same IP address.
-Thus it becomes very efficient to slow down brute force attacks.
-
-## Testing
-
-Browser tests submit the real form, so they have to compute a real stamp. At the default 16 bits this adds noticeable time to every submission and slows down your suite. Drop the complexity in the test environment so it finishes almost instantly:
-
-```ruby
-# spec/rails_helper.rb (RSpec) or test/test_helper.rb (Minitest)
-ActiveHashcash.bits = 2
-```
-
-In controller tests, provide the hashcash this way:
-
-```ruby
-post(url, params: {hashcash: ActiveHashcash::Stamp.mint(host).to_s})
-```
-
-## Limitations
-
-The JavaScript implementation is slower than the official C version.
-It uses a pure JS SHA-256 implementation running inside a Web Worker, which keeps the main thread responsive while mining.
-A synchronous tight loop avoids the per-call async overhead of `crypto.subtle.digest()`, making it the fastest browser-side approach across Chrome and Safari.
-
-No `crypto.subtle` or secure context (HTTPS) is required, so it works in any environment including plain HTTP during development.
 
 ## Contributing
 

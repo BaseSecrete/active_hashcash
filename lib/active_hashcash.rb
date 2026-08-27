@@ -28,10 +28,41 @@ module ActiveHashcash
 
   # This is base complexity.
   # Consider lowering it to not exclude people with old and slow devices.
-  mattr_accessor :bits, instance_accessor: false, default: 16
+  mattr_accessor :bits, instance_accessor: false, default: 20
+
+  # Flexible complexity penalty rules applied to pushy IP addresses.
+  # Each rule must be a hash with:
+  # - :period => time window considered (e.g. 5.minutes, 1.hour, 1.day)
+  # - :rate => multiplier applied to the number of stamps in that window
+  # Assignment sorts rules from shortest to longest period.
+  #
+  # Example:
+  #   ActiveHashcash.throttle_rules = [
+  #     {period: 5.minutes, rate: 0.5},
+  #     {period: 1.hour, rate: 0.34},
+  #     {period: 1.day, rate: 0.25}
+  #   ]
+  mattr_reader :throttle_rules, instance_accessor: false, default: [
+    {period: 1.hour, rate: 0.5},
+    {period: 24.hours, rate: 0.25}
+  ]
+
+  def self.throttle_rules=(rules)
+    rules&.each do |rule|
+      raise ArgumentError, "ActiveHashcash.throttle_rules period must be present" if rule[:period].nil?
+      raise ArgumentError, "ActiveHashcash.throttle_rules rate must be >= 0" if rule[:rate].to_f.negative?
+    end
+    @@throttle_rules = rules && rules.sort_by { |rule| rule[:period] }
+  end
 
   mattr_accessor :date_format, instance_accessor: false, default: "%y%m%d"
 
+  # Base controller class used by ActiveHashcash helpers/integration.
+  # Override this if your application subclasses the default Rails
+  # `ActionController::Base` (e.g. to apply common behavior across controllers).
+
+  # By default ActiveHashcash extends `ActionController::Base`, but you can change it to any controller,
+  # such as `AdminController` to handle authentication for the dashboard.
   mattr_accessor :base_controller_class, default: "ActionController::Base"
 
   # Call that method via a before_action when the form is submitted:
@@ -79,14 +110,18 @@ module ActiveHashcash
   end
 
   # Returns the complexity, the higher the slower it is.
-  # Complexity is increased logarithmicly for each IP during the last 24H to slowdown brute force attacks.
-  # The minimun value returned is ActiveHashcash.bits.
+  # Eventually adds a penalty for pushy IPs, see hashcash_throttle_penalty.
   def hashcash_bits
-    if (previous_stamp_count = ActiveHashcash::Stamp.where(ip_address: hashcash_ip_address).where(created_at: 1.day.ago..).count) > 0
-      (ActiveHashcash.bits + Math.log2(previous_stamp_count)).floor
-    else
-      ActiveHashcash.bits
-    end
+    (ActiveHashcash.bits + hashcash_throttle_penalty).floor
+  end
+
+  # Compute a penalty for pushy IPs.
+  # The penalty rules can be defined with `ActiveHashcash.throttle_rules`.
+  def hashcash_throttle_penalty
+    rules = ActiveHashcash.throttle_rules || []
+    periods = rules.map { |rule| rule[:period] }
+    counts = ActiveHashcash::Stamp.where(ip_address: hashcash_ip_address).sum_by_periods(periods)
+    rules.each_with_index.sum { |rule, index| counts[index].to_i * rule[:rate].to_f }
   end
 
   # Override if you want to rename the hashcash param.
