@@ -17,7 +17,6 @@ module ActiveHashcash
       body = Net::HTTP.get(URI(URL))
       ips = body.each_line.map(&:strip).reject(&:empty?).sort
       Rails.cache.write(CACHE_KEY, {updated_at: Time.current, ips: ips})
-      self.class.set(wait: 1.hour).perform_later
     ensure
       Rails.cache.delete(ENQUEUED_KEY)
     end
