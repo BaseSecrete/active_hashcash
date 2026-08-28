@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ActiveHashcashTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   class SampleController < ApplicationController
     include ActiveHashcash
 
@@ -73,6 +75,36 @@ class ActiveHashcashTest < ActiveSupport::TestCase
     assert_equal(old_rules, ActiveHashcash.throttle_rules)
   ensure
     ActiveHashcash.throttle_rules = old_rules
+  end
+
+  def test_tor_exit_ips_when_empty
+    with_memory_cache do
+      assert_enqueued_jobs(1, only: ActiveHashcash::UpdateTorExitIpsJob) do
+        2.times { assert_equal([], ActiveHashcash.tor_exit_ips) }
+      end
+    end
+  end
+
+  def test_tor_exit_ips_when_cached
+    with_memory_cache do
+      ips = ["1.2.3.4", "5.6.7.8"]
+      Rails.cache.write(ActiveHashcash::UpdateTorExitIpsJob::CACHE_KEY, {updated_at: Time.current, ips: ips})
+
+      assert_no_enqueued_jobs(only: ActiveHashcash::UpdateTorExitIpsJob) do
+        assert_equal(ips, ActiveHashcash.tor_exit_ips)
+      end
+    end
+  end
+
+  def test_tor_exit_ips_when_stale
+    with_memory_cache do
+      ips = ["1.2.3.4", "5.6.7.8"]
+      Rails.cache.write(ActiveHashcash::UpdateTorExitIpsJob::CACHE_KEY, {updated_at: 2.hours.ago, ips: ips})
+
+      assert_enqueued_with(job: ActiveHashcash::UpdateTorExitIpsJob) do
+        assert_equal(ips, ActiveHashcash.tor_exit_ips)
+      end
+    end
   end
 
 end

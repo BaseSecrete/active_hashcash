@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Penalize Tor exit IPs by 4 bits
 - Add `ActiveHashcash.throttle_rules` to slow down pushy IPs
 
 ## 0.5.0 (2026-08-08)
