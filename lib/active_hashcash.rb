@@ -15,7 +15,7 @@ require "active_hashcash/engine"
 #   end
 #
 # Your are welcome to override most of the methods to customize to your needs.
-# For example, if your app runs behind a loab balancer you should probably override #hashcash_ip_address.
+# For example, if your app runs behind a load balancer you should probably override #hashcash_ip_address.
 #
 module ActiveHashcash
   extend ActiveSupport::Concern
@@ -91,7 +91,7 @@ module ActiveHashcash
     request.remote_ip
   end
 
-  # Return current request path to be saved to the sucessful ActiveHash::Stamp.
+  # Return current request path to be saved to the successful ActiveHash::Stamp.
   # If multiple forms are protected via hashcash this is an interesting info.
   def hashcash_request_path
     request.path
@@ -104,13 +104,13 @@ module ActiveHashcash
 
   # This is the resource used to build the hashcash stamp.
   # By default the host name is returned.
-  # It' should be good for most cases and prevent from reusing the same stamp between sites.
+  # It should be good for most cases and prevent from reusing the same stamp between sites.
   def hashcash_resource
     ActiveHashcash.resource || request.host
   end
 
   # Returns the complexity, the higher the slower it is.
-  # Eventually adds penalties for pushy IPs and Tor exits
+  # Eventually adds penalties for bad and pushy IPs.
   def hashcash_bits
     (ActiveHashcash.bits + hashcash_throttle_penalty + hashcash_reputation_penalty).floor
   end

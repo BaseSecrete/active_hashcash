@@ -36,7 +36,7 @@ module ActiveHashcash
       end
 
       def max_body_size
-        100.megabytes
+        10.megabytes
       end
 
       def normalize(body)

@@ -9,7 +9,7 @@ module ActiveHashcash
 
       def perform
         timestamp = Time.current
-        entries = normalize(fetch)
+        raise "Empty list" if (entries = normalize(fetch)).empty?
         IPv4.transaction do
           IPv4.where(spamhaus_score: 1).update_all(spamhaus_score: 0, updated_at: timestamp)
           IPv4.bulk_upsert_scores(entries, :spamhaus_score, timestamp)

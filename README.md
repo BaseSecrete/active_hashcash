@@ -161,7 +161,11 @@ By default its value is 20 and you can change it with `ActiveHashcash.bits = 24`
 
 ### Penalties
 
-A penalty is added for pushy IPs which submit valid stamps too fast.
+To improve the protection a penalty is added for pushy and bad IPs.
+
+### For pushy IPs
+
+A penalty is added for IPs which submit valid stamps too fast.
 The goal is to slow down attackers using a botnet.
 The penalty rules can be defined like this.
 
@@ -202,6 +206,19 @@ class SessionController < ApplicationController
   end
 end
 ```
+
+### For IPs with poor reputation
+
+The following lists are used to increase the complexity for bad IPs:
+
+  - [Tor exit IPs](https://check.torproject.org/torbulkexitlist)
+  - [Spamhaus DROP list](https://www.spamhaus.org/drop/drop.txt)
+  - [IPSum](https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt)
+
+The list is stored in the model `ActiveHashcash::Reputation::IPv4` and it has to bee synchronized by `ActiveHashcash::Reputation::UpdateAllJob.perform_later` anywhere from once per hour to once per day.
+If you update too often you might be blocked.
+
+If you don't trust these external lists, don't call that job and delete all records of `IPv4`.
 
 ## Testing Your Application
 

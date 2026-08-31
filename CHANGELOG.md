@@ -9,6 +9,8 @@
     rails db:migrate
     ```
 
+    Finally run `ActiveHashcash::Reputation::UpdateAllJob.perform_later` from a cron anywhere from once per hour to once per day.
+
 - Add `ActiveHashcash.throttle_rules` to slow down pushy IPs
 
 ## 0.5.0 (2026-08-08)

@@ -18,6 +18,8 @@ module ActiveHashcash
         tor_score, spamhaus_score, ipsum_score = where("? BETWEEN range_start AND range_end", ip_binary)
           .pick(Arel.sql("sum(tor_score), sum(spamhaus_score), sum(ipsum_score)"))
         {tor: tor_score || 0, spamhaus: spamhaus_score || 0, ipsum: ipsum_score || 0}
+      rescue IPAddr::InvalidAddressError
+        {tor: 0, spamhaus: 0, ipsum: 0}
       end
 
       def self.bulk_upsert_scores(entries, score_column, timestamp)
@@ -40,9 +42,10 @@ module ActiveHashcash
         end
       end
 
-      def self.ip_to_range(ip)
-        binary = IPAddr.new(ip).hton
-        [binary, binary]
+      def self.ip_to_range(string)
+        if (ip = IPAddr.new(string)).ipv4?
+          [binary = ip.hton, binary]
+        end
       end
 
       def self.cidr_to_range(cidr)
