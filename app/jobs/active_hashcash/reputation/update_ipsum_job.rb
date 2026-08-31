@@ -14,7 +14,6 @@ module ActiveHashcash
           IPv4.where("ipsum_score > 0").update_all(ipsum_score: 0, updated_at: now)
           IPv4.bulk_upsert_scores(entries, score: :ipsum_score, now: now)
         end
-        Rails.cache.write(self.class.refreshed_at_key, now)
       end
 
       def normalize(body)

@@ -6,30 +6,8 @@ require "uri"
 module ActiveHashcash
   module Reputation
     class UpdateJob < ApplicationJob
-      around_perform do |_job, block|
-        block.call
-      ensure
-        Rails.cache.delete(self.class.enqueued_key)
-      end
-
-      def self.perform_later_once
-        perform_later if Rails.cache.write(enqueued_key, true, unless_exist: true)
-      end
-
-      def self.last_refreshed_at
-        Rails.cache.read(refreshed_at_key)
-      end
-
       def self.url
         raise NotImplementedError, "#{name} must implement .url"
-      end
-
-      def self.enqueued_key
-        "#{name}_enqueued"
-      end
-
-      def self.refreshed_at_key
-        "#{name}_refreshed_at"
       end
 
       def fetch(url = self.class.url)

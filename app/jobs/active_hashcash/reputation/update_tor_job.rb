@@ -15,7 +15,6 @@ module ActiveHashcash
           IPv4.where(tor_score: 1).update_all(tor_score: 0, updated_at: now)
           IPv4.bulk_upsert_scores(entries, score: :tor_score, now: now)
         end
-        Rails.cache.write(self.class.refreshed_at_key, now)
       end
 
       def normalize(body)
