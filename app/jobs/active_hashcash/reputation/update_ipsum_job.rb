@@ -8,11 +8,11 @@ module ActiveHashcash
       end
 
       def perform
-        now = Time.current
+        timestamp = Time.current
         entries = normalize(fetch)
         IPv4.transaction do
-          IPv4.where("ipsum_score > 0").update_all(ipsum_score: 0, updated_at: now)
-          IPv4.bulk_upsert_scores(entries, score: :ipsum_score, now: now)
+          IPv4.where("ipsum_score > 0").update_all(ipsum_score: 0, updated_at: timestamp)
+          IPv4.bulk_upsert_scores(entries, :ipsum_score, timestamp)
         end
       end
 

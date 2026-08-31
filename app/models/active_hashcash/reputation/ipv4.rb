@@ -20,20 +20,22 @@ module ActiveHashcash
         {tor: tor_score || 0, spamhaus: spamhaus_score || 0, ipsum: ipsum_score || 0}
       end
 
-      def self.bulk_upsert_scores(entries, score:, now: Time.current)
+      def self.bulk_upsert_scores(entries, score_column, timestamp)
+        entries = entries.uniq { |range_start, range_end, _| [range_start, range_end] }
         entries.each_slice(UPSERT_BATCH_SIZE) do |batch|
           upsert_all(
             batch.map do |range_start, range_end, value|
               {
                 range_start: range_start,
                 range_end: range_end,
-                created_at: now,
-                updated_at: now,
-                score => value
+                created_at: timestamp,
+                updated_at: timestamp,
+                score_column => value
               }
             end,
+            record_timestamps: false,
             unique_by: [:range_start, :range_end],
-            update_only: [score, :updated_at]
+            update_only: [score_column, :updated_at]
           )
         end
       end

@@ -9,4 +9,12 @@ class ActiveHashcash::Reputation::UpdateSpamhausJobTest < ActiveSupport::TestCas
     end
     assert_operator(ActiveHashcash::Reputation::IPv4.where(spamhaus_score: 1).count, :>, 0)
   end
+
+  def test_perform_with_duplicate_ranges
+    body = "10.0.0.0/8 ; DROP\n10.0.0.0/8 ; DROP\n"
+    with_stubbed_job_fetch(ActiveHashcash::Reputation::UpdateSpamhausJob, body) do
+      ActiveHashcash::Reputation::UpdateSpamhausJob.perform_now
+    end
+    assert_equal(1, ActiveHashcash::Reputation::IPv4.where(spamhaus_score: 1).count)
+  end
 end
