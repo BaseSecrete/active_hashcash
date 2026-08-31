@@ -16,7 +16,7 @@ module ActiveHashcash
       def self.scores(ip)
         ip_binary = ActiveRecord::Type::Binary.new.serialize(IPAddr.new(ip).hton)
         tor_score, spamhaus_score, ipsum_score = where("? BETWEEN range_start AND range_end", ip_binary)
-          .pick(Arel.sql("max(tor_score), max(spamhaus_score), max(ipsum_score)"))
+          .pick(Arel.sql("sum(tor_score), sum(spamhaus_score), sum(ipsum_score)"))
         {tor: tor_score || 0, spamhaus: spamhaus_score || 0, ipsum: ipsum_score || 0}
       end
 

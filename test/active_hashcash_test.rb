@@ -79,16 +79,10 @@ class ActiveHashcashTest < ActiveSupport::TestCase
 
   def test_hashcash_reputation_penalty
     controller = SampleController.new
-    range_start, range_end = ActiveHashcash::Reputation::IPv4.ip_to_range("127.0.0.1")
-    ActiveHashcash::Reputation::IPv4.create!(
-      range_start: range_start,
-      range_end: range_end,
-      tor_score: 1,
-      spamhaus_score: 0,
-      ipsum_score: 2
-    )
-
-    assert_equal(1 * 4 + 0 * 4 + 2, controller.hashcash_reputation_penalty)
+    assert_equal(0, controller.hashcash_reputation_penalty)
+    controller.stub(:hashcash_ip_address, "10.6.6.6") do
+      assert_equal(4*1 + 4*1 + 1*3, controller.hashcash_reputation_penalty)
+    end
   end
 
 end
