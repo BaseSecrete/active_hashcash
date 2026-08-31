@@ -30,14 +30,6 @@ module ActiveHashcash
   # Consider lowering it to not exclude people with old and slow devices.
   mattr_accessor :bits, instance_accessor: false, default: 20
 
-  # Returns the sorted Tor exit IP list from Rails.cache.
-  # Enqueues ActiveHashcash::UpdateTorExitIpsJob when the list is missing or older than one hour.
-  def self.tor_exit_ips
-    cached = Rails.cache.read(UpdateTorExitIpsJob::CACHE_KEY)
-    UpdateTorExitIpsJob.perform_later_once if !cached || !cached[:updated_at] || cached[:updated_at] < 1.hour.ago
-    cached&.fetch(:ips, []) || []
-  end
-
   # Flexible complexity penalty rules applied to pushy IP addresses.
   # Each rule must be a hash with:
   # - :period => time window considered (e.g. 5.minutes, 1.hour, 1.day)
@@ -133,14 +125,9 @@ module ActiveHashcash
   end
 
   # Compute a reputation penalty for the current IP.
-  # Returns #hashcash_tor_penalty when the IP is a known Tor exit node.
   def hashcash_reputation_penalty
-    ActiveHashcash.tor_exit_ips.bsearch { |ip| hashcash_ip_address <=> ip } ? hashcash_tor_penalty : 0
-  end
-
-  # Bits added when the request comes from a Tor exit node.
-  def hashcash_tor_penalty
-    4
+    scores = Reputation::IPv4.scores(hashcash_ip_address)
+    scores[:tor] * 4 + scores[:spamhaus] * 4 + scores[:ipsum]
   end
 
   # Override if you want to rename the hashcash param.

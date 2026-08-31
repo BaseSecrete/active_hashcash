@@ -10,22 +10,32 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_15_143453) do
-  create_table "active_hashcash_stamps", force: :cascade do |t|
-    t.string "version", null: false
-    t.integer "bits", null: false
-    t.date "date", null: false
-    t.string "resource", null: false
-    t.string "ext", null: false
-    t.string "rand", null: false
-    t.string "counter", null: false
-    t.string "request_path"
-    t.string "ip_address"
-    t.json "context"
+ActiveRecord::Schema[8.1].define(version: 2026_08_31_130000) do
+  create_table "active_hashcash_reputation_ipv4s", force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
+    t.integer "ipsum_score", limit: 1, default: 0, null: false
+    t.binary "range_end", limit: 4, null: false
+    t.binary "range_start", limit: 4, null: false
+    t.integer "spamhaus_score", limit: 1, default: 0, null: false
+    t.integer "tor_score", limit: 1, default: 0, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.index ["range_start", "range_end"], name: "index_active_hashcash_reputation_ipv4s_on_range", unique: true
+  end
+
+  create_table "active_hashcash_stamps", force: :cascade do |t|
+    t.integer "bits", null: false
+    t.json "context"
+    t.string "counter", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.date "date", null: false
+    t.string "ext", null: false
+    t.string "ip_address"
+    t.string "rand", null: false
+    t.string "request_path"
+    t.string "resource", null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.string "version", null: false
     t.index ["counter", "rand", "date", "resource", "bits", "version", "ext"], name: "index_active_hashcash_stamps_unique", unique: true
     t.index ["ip_address", "created_at"], name: "index_active_hashcash_stamps_on_ip_address_and_created_at", where: "ip_address IS NOT NULL"
   end
-
 end

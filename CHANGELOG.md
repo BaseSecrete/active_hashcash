@@ -2,7 +2,13 @@
 
 ## Unreleased
 
-- Penalize Tor exit IPs by 4 bits
+- Penalize bad IPs reported by Spamhaus DROP list, IPSum and Tor exit list. Reputation is stored in the database so you need to run a migration:
+
+    ```
+    rails active_hashcash:install:migrations
+    rails db:migrate
+    ```
+
 - Add `ActiveHashcash.throttle_rules` to slow down pushy IPs
 
 ## 0.5.0 (2026-08-08)

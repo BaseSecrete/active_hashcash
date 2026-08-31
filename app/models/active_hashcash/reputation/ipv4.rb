@@ -1,0 +1,59 @@
+# frozen_string_literal: true
+
+require "ipaddr"
+
+module ActiveHashcash
+  module Reputation
+    class IPv4 < ApplicationRecord
+      self.table_name = "active_hashcash_reputation_ipv4s"
+
+      UPSERT_BATCH_SIZE = 1000
+
+      validates :range_start, :range_end, presence: true, length: {is: 4}
+      validates :tor_score, :spamhaus_score, inclusion: {in: 0..1}
+      validates :ipsum_score, numericality: {only_integer: true, greater_than_or_equal_to: 0}
+
+      def self.scores(ip)
+        ip_binary = ActiveRecord::Type::Binary.new.serialize(IPAddr.new(ip).hton)
+        tor_score, spamhaus_score, ipsum_score = where("? BETWEEN range_start AND range_end", ip_binary)
+          .pick(Arel.sql("max(tor_score), max(spamhaus_score), max(ipsum_score)"))
+        {tor: tor_score || 0, spamhaus: spamhaus_score || 0, ipsum: ipsum_score || 0}
+      end
+
+      def self.bulk_upsert_scores(entries, score:, now: Time.current)
+        entries.each_slice(UPSERT_BATCH_SIZE) do |batch|
+          upsert_all(
+            batch.map do |range_start, range_end, value|
+              {
+                range_start: range_start,
+                range_end: range_end,
+                created_at: now,
+                updated_at: now,
+                score => value
+              }
+            end,
+            unique_by: [:range_start, :range_end],
+            update_only: [score, :updated_at]
+          )
+        end
+      end
+
+      def self.ip_to_range(ip)
+        binary = IPAddr.new(ip).hton
+        [binary, binary]
+      end
+
+      def self.cidr_to_range(cidr)
+        network = IPAddr.new(cidr)
+        prefix = network.prefix
+        start_int = network.to_i
+        end_int = start_int | ((1 << (32 - prefix)) - 1)
+        [pack_int(start_int), pack_int(end_int)]
+      end
+
+      def self.pack_int(int)
+        [int].pack("N")
+      end
+    end
+  end
+end

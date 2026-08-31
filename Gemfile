@@ -8,4 +8,6 @@ gem "puma"
 
 gem "sqlite3"
 
+gem "minitest-mock"
+
 gem "sprockets-rails" # TODO: Try to remove this dependency

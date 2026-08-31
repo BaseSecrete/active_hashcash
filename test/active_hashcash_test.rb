@@ -77,34 +77,19 @@ class ActiveHashcashTest < ActiveSupport::TestCase
     ActiveHashcash.throttle_rules = old_rules
   end
 
-  def test_tor_exit_ips_when_empty
-    with_memory_cache do
-      assert_enqueued_jobs(1, only: ActiveHashcash::UpdateTorExitIpsJob) do
-        2.times { assert_equal([], ActiveHashcash.tor_exit_ips) }
-      end
-    end
-  end
+  def test_hashcash_reputation_penalty
+    ActiveHashcash::Reputation::IPv4.delete_all
+    controller = SampleController.new
+    range_start, range_end = ActiveHashcash::Reputation::IPv4.ip_to_range("127.0.0.1")
+    ActiveHashcash::Reputation::IPv4.create!(
+      range_start: range_start,
+      range_end: range_end,
+      tor_score: 1,
+      spamhaus_score: 0,
+      ipsum_score: 2
+    )
 
-  def test_tor_exit_ips_when_cached
-    with_memory_cache do
-      ips = ["1.2.3.4", "5.6.7.8"]
-      Rails.cache.write(ActiveHashcash::UpdateTorExitIpsJob::CACHE_KEY, {updated_at: Time.current, ips: ips})
-
-      assert_no_enqueued_jobs(only: ActiveHashcash::UpdateTorExitIpsJob) do
-        assert_equal(ips, ActiveHashcash.tor_exit_ips)
-      end
-    end
-  end
-
-  def test_tor_exit_ips_when_stale
-    with_memory_cache do
-      ips = ["1.2.3.4", "5.6.7.8"]
-      Rails.cache.write(ActiveHashcash::UpdateTorExitIpsJob::CACHE_KEY, {updated_at: 2.hours.ago, ips: ips})
-
-      assert_enqueued_with(job: ActiveHashcash::UpdateTorExitIpsJob) do
-        assert_equal(ips, ActiveHashcash.tor_exit_ips)
-      end
-    end
+    assert_equal(1 * 4 + 0 * 4 + 2, controller.hashcash_reputation_penalty)
   end
 
 end
