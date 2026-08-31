@@ -78,7 +78,6 @@ class ActiveHashcashTest < ActiveSupport::TestCase
   end
 
   def test_hashcash_reputation_penalty
-    ActiveHashcash::Reputation::IPv4.delete_all
     controller = SampleController.new
     range_start, range_end = ActiveHashcash::Reputation::IPv4.ip_to_range("127.0.0.1")
     ActiveHashcash::Reputation::IPv4.create!(

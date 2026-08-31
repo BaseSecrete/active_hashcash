@@ -1,11 +1,7 @@
 require "test_helper"
 
 class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
-  setup do
-    ActiveHashcash::Reputation::IPv4.delete_all
-  end
-
-  def test_lookup_for_single_ip
+  def test_scores
     range_start, range_end = ActiveHashcash::Reputation::IPv4.ip_to_range("1.2.3.4")
     ActiveHashcash::Reputation::IPv4.create!(
       range_start: range_start,
@@ -15,13 +11,6 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
       ipsum_score: 3
     )
 
-    scores = ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")
-    assert_equal(1, scores[:tor])
-    assert_equal(0, scores[:spamhaus])
-    assert_equal(3, scores[:ipsum])
-  end
-
-  def test_lookup_for_cidr_range
     range_start, range_end = ActiveHashcash::Reputation::IPv4.cidr_to_range("10.0.0.0/8")
     ActiveHashcash::Reputation::IPv4.create!(
       range_start: range_start,
@@ -30,6 +19,11 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
       spamhaus_score: 1,
       ipsum_score: 0
     )
+
+    scores = ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")
+    assert_equal(1, scores[:tor])
+    assert_equal(0, scores[:spamhaus])
+    assert_equal(3, scores[:ipsum])
 
     scores = ActiveHashcash::Reputation::IPv4.scores("10.1.2.3")
     assert_equal(0, scores[:tor])

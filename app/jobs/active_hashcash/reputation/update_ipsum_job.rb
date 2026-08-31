@@ -19,9 +19,7 @@ module ActiveHashcash
       def normalize(body)
         super.filter_map do |line|
           ip, score = line.split(/\s+/, 2)
-          next unless ip && score
-
-          IPv4.ip_to_range(ip) + [score.to_i]
+          IPv4.ip_to_range(ip) + [score.to_i] if ip && score
         end
       end
     end
