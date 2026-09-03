@@ -15,8 +15,7 @@ module ActiveHashcash
       validates :attack_score, inclusion: {in: 0..4}
 
       scope :by_address, -> (string) {
-        binary = ActiveRecord::Type::Binary.new.serialize(IPAddr.new(string).hton)
-        where("? BETWEEN range_start AND range_end", binary)
+        where("? BETWEEN range_start AND range_end", ActiveRecord::Type::Binary.new.serialize(IPAddr.new(string).hton))
       }
 
       def self.scores(ip)
@@ -31,11 +30,7 @@ module ActiveHashcash
         entries.each_slice(UPSERT_BATCH_SIZE) do |batch|
           upsert_all(
             batch.map do |range_start, range_end, value|
-              {
-                range_start: range_start,
-                range_end: range_end,
-                score_column => value
-              }
+              {range_start: range_start, range_end: range_end, score_column => value}
             end,
             record_timestamps: false,
             unique_by: [:range_start, :range_end],
