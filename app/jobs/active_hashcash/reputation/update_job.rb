@@ -44,7 +44,7 @@ module ActiveHashcash
         body.each_line.filter_map do |line|
           next if (line = line.strip).blank? || line.start_with?("#", ";")
           next if (ip = IPAddr.new(line)).private? || ip.loopback? || ip.link_local?
-          line
+          ip
         rescue IPAddr::InvalidAddressError
           next
         end

@@ -19,8 +19,8 @@ module ActiveHashcash
       end
 
       def normalize(body, score)
-        super(body).filter_map do |line|
-          range = IPv4.net_to_range(line)
+        super(body).filter_map do |ip|
+          range = IPv4.net_to_range(ip)
           range + [score] if range
         end
       end

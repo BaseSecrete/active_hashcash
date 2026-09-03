@@ -1,4 +1,5 @@
 require "test_helper"
+require "ipaddr"
 
 class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
   def test_scores
@@ -14,7 +15,7 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
   end
 
   def test_bulk_upsert_scores
-    range_start, range_end = ActiveHashcash::Reputation::IPv4.ip_to_range("1.2.3.4")
+    range_start, range_end = ActiveHashcash::Reputation::IPv4.ip_to_range(IPAddr.new("1.2.3.4"))
     ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[range_start, range_end, 2]], :abuse_score)
     ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[range_start, range_end, 4]], :attack_score)
 
@@ -24,10 +25,11 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
   end
 
   def test_net_to_range
-    ip_start, ip_end = ActiveHashcash::Reputation::IPv4.net_to_range("1.2.3.4")
+    ip_start, ip_end = ActiveHashcash::Reputation::IPv4.net_to_range(IPAddr.new("1.2.3.4"))
     assert_equal(ip_start, ip_end)
 
-    cidr_start, cidr_end = ActiveHashcash::Reputation::IPv4.net_to_range("10.0.0.0/8")
-    assert_equal(ActiveHashcash::Reputation::IPv4.cidr_to_range("10.0.0.0/8"), [cidr_start, cidr_end])
+    cidr = IPAddr.new("10.0.0.0/8")
+    cidr_start, cidr_end = ActiveHashcash::Reputation::IPv4.net_to_range(cidr)
+    assert_equal(ActiveHashcash::Reputation::IPv4.cidr_to_range(cidr), [cidr_start, cidr_end])
   end
 end
