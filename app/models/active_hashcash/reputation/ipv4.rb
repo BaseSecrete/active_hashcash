@@ -14,12 +14,14 @@ module ActiveHashcash
       validates :abuse_score, inclusion: {in: 0..2}
       validates :attack_score, inclusion: {in: 0..4}
 
+      scope :by_address, -> (string) {
+        binary = ActiveRecord::Type::Binary.new.serialize(IPAddr.new(string).hton)
+        where("? BETWEEN range_start AND range_end", binary)
+      }
+
       def self.scores(ip)
-        ip_binary = ActiveRecord::Type::Binary.new.serialize(IPAddr.new(ip).hton)
-        abuse_score, anonymous_score, attack_score =
-          where("? BETWEEN range_start AND range_end", ip_binary)
-            .pick(Arel.sql("sum(abuse_score), sum(anonymous_score), sum(attack_score)"))
-        {abuse: abuse_score || 0, anonymous: anonymous_score || 0, attack: attack_score || 0}
+        abuse, anonymous, attack = by_address(ip).pick(Arel.sql("sum(abuse_score), sum(anonymous_score), sum(attack_score)"))
+        {abuse: abuse || 0, anonymous: anonymous || 0, attack: attack || 0}
       rescue IPAddr::InvalidAddressError
         {abuse: 0, anonymous: 0, attack: 0}
       end
