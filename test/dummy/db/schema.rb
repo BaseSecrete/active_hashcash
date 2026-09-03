@@ -11,7 +11,7 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.1].define(version: 2026_08_31_130000) do
-  create_table "active_hashcash_reputation_ipv4s", force: :cascade do |t|
+  create_table "active_hashcash_reputation_ipv4s", primary_key: ["range_start", "range_end"], force: :cascade do |t|
     t.integer "abuse_score", limit: 1, default: 0, null: false
     t.integer "anonymous_score", limit: 1, default: 0, null: false
     t.integer "attack_score", limit: 1, default: 0, null: false
@@ -20,7 +20,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_31_130000) do
     t.binary "range_start", limit: 4, null: false
     t.integer "spamhaus_score", limit: 1, default: 0, null: false
     t.integer "tor_score", limit: 1, default: 0, null: false
-    t.index ["range_start", "range_end"], name: "index_active_hashcash_reputation_ipv4s_on_range", unique: true
   end
 
   create_table "active_hashcash_reputation_locks", force: :cascade do |t|
