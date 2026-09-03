@@ -38,28 +38,6 @@ module ActiveHashcash
           )
         end
       end
-
-      def self.ip_to_range(ip)
-        if ip.ipv4?
-          [binary = ip.hton, binary]
-        end
-      end
-
-      # Handles both unique IPs and network masks (CIDR).
-      def self.net_to_range(ip)
-        ip.prefix < 32 ? cidr_to_range(ip) : ip_to_range(ip)
-      end
-
-      def self.cidr_to_range(ip)
-        prefix = ip.prefix
-        start_int = ip.to_i
-        end_int = start_int | ((1 << (32 - prefix)) - 1)
-        [pack_int(start_int), pack_int(end_int)]
-      end
-
-      def self.pack_int(int)
-        [int].pack("N")
-      end
     end
   end
 end

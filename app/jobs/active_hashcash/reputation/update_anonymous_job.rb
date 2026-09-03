@@ -21,7 +21,8 @@ module ActiveHashcash
 
       def normalize(body)
         super.filter_map do |ip|
-          range = IPv4.net_to_range(ip)
+          range = ip.to_range
+          range = [range.first.hton, range.last.hton]
           range + [1] if range
         end
       end
