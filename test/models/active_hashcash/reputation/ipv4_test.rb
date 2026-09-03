@@ -14,10 +14,9 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
   end
 
   def test_bulk_upsert_scores
-    timestamp = Time.current
     range_start, range_end = ActiveHashcash::Reputation::IPv4.ip_to_range("1.2.3.4")
-    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[range_start, range_end, 5]], :ipsum_score, timestamp)
-    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[range_start, range_end, 1]], :tor_score, timestamp)
+    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[range_start, range_end, 5]], :ipsum_score)
+    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[range_start, range_end, 1]], :tor_score)
 
     scores = ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")
     assert_equal(1, scores[:tor])

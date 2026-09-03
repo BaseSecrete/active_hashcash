@@ -8,11 +8,10 @@ module ActiveHashcash
       end
 
       def perform
-        timestamp = Time.current
         raise "Empty list" if (entries = normalize(fetch)).empty?
         IPv4.transaction do
-          IPv4.where("ipsum_score > 0").update_all(ipsum_score: 0, updated_at: timestamp)
-          IPv4.bulk_upsert_scores(entries, :ipsum_score, timestamp)
+          IPv4.where("ipsum_score > 0").update_all(ipsum_score: 0)
+          IPv4.bulk_upsert_scores(entries, :ipsum_score)
         end
       end
 

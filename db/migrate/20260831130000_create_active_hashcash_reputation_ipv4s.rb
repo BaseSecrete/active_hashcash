@@ -17,7 +17,6 @@ class CreateActiveHashcashReputationIpv4s < ActiveRecord::Migration[5.2]
       t.integer :abuse_score, limit: 1, null: false, default: 0
       t.integer :anonymous_score, limit: 1, null: false, default: 0
       t.integer :attack_score, limit: 1, null: false, default: 0
-      t.timestamps
     end
     add_index :active_hashcash_reputation_ipv4s, [:range_start, :range_end], unique: true, name: "index_active_hashcash_reputation_ipv4s_on_range"
   end

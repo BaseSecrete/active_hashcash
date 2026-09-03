@@ -12,12 +12,11 @@ module ActiveHashcash
       }.freeze
 
       def perform
-        timestamp = Time.current
         entries = URLS.flat_map { |url, score| normalize(fetch(url), score) }
         raise "Empty list" if entries.empty?
         IPv4.transaction do
-          IPv4.where("attack_score > 0").update_all(attack_score: 0, updated_at: timestamp)
-          IPv4.bulk_upsert_scores(entries, :attack_score, timestamp)
+          IPv4.where("attack_score > 0").update_all(attack_score: 0)
+          IPv4.bulk_upsert_scores(entries, :attack_score)
         end
       end
 
