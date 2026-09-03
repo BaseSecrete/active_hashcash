@@ -12,9 +12,6 @@ class CreateActiveHashcashReputationIpv4s < ActiveRecord::Migration[5.2]
       # So, 4-byte binary column is a trade off for best efficiency compatible with PostgreSQL, MySQL and SQLite.
       t.binary :range_start, limit: 4, null: false
       t.binary :range_end, limit: 4, null: false
-      t.integer :tor_score, limit: 1, null: false, default: 0
-      t.integer :spamhaus_score, limit: 1, null: false, default: 0
-      t.integer :ipsum_score, limit: 1, null: false, default: 0
       t.integer :abuse_score, limit: 1, null: false, default: 0
       t.integer :anonymous_score, limit: 1, null: false, default: 0
       t.integer :attack_score, limit: 1, null: false, default: 0
@@ -25,9 +22,6 @@ class CreateActiveHashcashReputationIpv4s < ActiveRecord::Migration[5.2]
     #   CREATE TABLE IF NOT EXISTS "active_hashcash_reputation_ipv4s" (
     #     "range_start" blob(4) NOT NULL,
     #     "range_end" blob(4) NOT NULL,
-    #     "tor_score" integer(1) DEFAULT 0 NOT NULL,
-    #     "spamhaus_score" integer(1) DEFAULT 0 NOT NULL,
-    #     "ipsum_score" integer(1) DEFAULT 0 NOT NULL,
     #     "abuse_score" integer(1) DEFAULT 0 NOT NULL,
     #     "anonymous_score" integer(1) DEFAULT 0 NOT NULL,
     #     "attack_score" integer(1) DEFAULT 0 NOT NULL,

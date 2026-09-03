@@ -1,9 +1,6 @@
 ten_network:
   range_start: !binary <%= [ActiveHashcash::Reputation::IPv4.cidr_to_range("10.0.0.0/8").first].pack("m0") %>
   range_end: !binary <%= [ActiveHashcash::Reputation::IPv4.cidr_to_range("10.0.0.0/8").last].pack("m0") %>
-  tor_score: 0
-  spamhaus_score: 1
-  ipsum_score: 0
   abuse_score: 0
   anonymous_score: 0
   attack_score: 0
@@ -11,19 +8,13 @@ ten_network:
 ten_six_network:
   range_start: !binary <%= [ActiveHashcash::Reputation::IPv4.cidr_to_range("10.6.0.0/16").first].pack("m0") %>
   range_end: !binary <%= [ActiveHashcash::Reputation::IPv4.cidr_to_range("10.6.0.0/16").last].pack("m0") %>
-  tor_score: 0
-  spamhaus_score: 0
-  ipsum_score: 1
-  abuse_score: 0
+  abuse_score: 1
   anonymous_score: 0
   attack_score: 0
 
 ten_evil:
   range_start: !binary <%= [ActiveHashcash::Reputation::IPv4.cidr_to_range("10.6.6.6").first].pack("m0") %>
   range_end: !binary <%= [ActiveHashcash::Reputation::IPv4.cidr_to_range("10.6.6.6").last].pack("m0") %>
-  tor_score: 1
-  spamhaus_score: 0
-  ipsum_score: 2
-  abuse_score: 0
+  abuse_score: 2
   anonymous_score: 0
-  attack_score: 0
+  attack_score: 4

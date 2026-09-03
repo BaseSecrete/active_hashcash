@@ -211,9 +211,6 @@ end
 
 The following lists are used to increase the complexity for bad IPs:
 
-  - [Tor exit IPs](https://check.torproject.org/torbulkexitlist)
-  - [Spamhaus DROP list](https://www.spamhaus.org/drop/drop.txt)
-  - [IPSum](https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt)
   - [FireHOL abusers](https://iplists.firehol.org/files/firehol_abusers_1d.netset) (1d and 30d)
   - [FireHOL anonymous](https://iplists.firehol.org/files/firehol_anonymous.netset)
   - [FireHOL levels 1–4](https://iplists.firehol.org/files/firehol_level1.netset) (attacks)

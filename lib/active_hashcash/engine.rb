@@ -7,7 +7,6 @@ module ActiveHashcash
     initializer "active_hashcash.inflections" do
       ActiveSupport::Inflector.inflections(:en) do |inflect|
         inflect.acronym "IPv4"
-        inflect.acronym "IPSum"
       end
     end
   end

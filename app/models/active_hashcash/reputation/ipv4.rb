@@ -10,26 +10,18 @@ module ActiveHashcash
       UPSERT_BATCH_SIZE = 1000
 
       validates :range_start, :range_end, presence: true, length: {is: 4}
-      validates :tor_score, :spamhaus_score, :anonymous_score, inclusion: {in: 0..1}
+      validates :anonymous_score, inclusion: {in: 0..1}
       validates :abuse_score, inclusion: {in: 0..2}
       validates :attack_score, inclusion: {in: 0..4}
-      validates :ipsum_score, numericality: {only_integer: true, greater_than_or_equal_to: 0}
 
       def self.scores(ip)
         ip_binary = ActiveRecord::Type::Binary.new.serialize(IPAddr.new(ip).hton)
-        tor_score, spamhaus_score, ipsum_score, abuse_score, anonymous_score, attack_score =
+        abuse_score, anonymous_score, attack_score =
           where("? BETWEEN range_start AND range_end", ip_binary)
-            .pick(Arel.sql("sum(tor_score), sum(spamhaus_score), sum(ipsum_score), sum(abuse_score), sum(anonymous_score), sum(attack_score)"))
-        {
-          tor: tor_score || 0,
-          spamhaus: spamhaus_score || 0,
-          ipsum: ipsum_score || 0,
-          abuse: abuse_score || 0,
-          anonymous: anonymous_score || 0,
-          attack: attack_score || 0
-        }
+            .pick(Arel.sql("sum(abuse_score), sum(anonymous_score), sum(attack_score)"))
+        {abuse: abuse_score || 0, anonymous: anonymous_score || 0, attack: attack_score || 0}
       rescue IPAddr::InvalidAddressError
-        {tor: 0, spamhaus: 0, ipsum: 0, abuse: 0, anonymous: 0, attack: 0}
+        {abuse: 0, anonymous: 0, attack: 0}
       end
 
       def self.bulk_upsert_scores(entries, score_column)
@@ -40,14 +32,11 @@ module ActiveHashcash
               {
                 range_start: range_start,
                 range_end: range_end,
-                #created_at: timestamp,
-                #updated_at: timestamp,
                 score_column => value
               }
             end,
             record_timestamps: false,
             unique_by: [:range_start, :range_end],
-            #update_only: [score_column, :updated_at]
             update_only: [score_column]
           )
         end

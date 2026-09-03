@@ -127,8 +127,7 @@ module ActiveHashcash
   # Compute a reputation penalty for the current IP.
   def hashcash_reputation_penalty
     scores = Reputation::IPv4.scores(hashcash_ip_address)
-    scores[:tor] * 4 + scores[:spamhaus] * 4 + scores[:ipsum] +
-      scores[:abuse] * 4 + scores[:anonymous] * 4 + scores[:attack] * 4
+    scores[:abuse] * 4 + scores[:anonymous] * 4 + scores[:attack] * 4
   end
 
   # Override if you want to rename the hashcash param.

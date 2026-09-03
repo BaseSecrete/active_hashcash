@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Penalize bad IPs reported by Spamhaus DROP list, IPSum and Tor exit list. Reputation is stored in the database so you need to run a migration:
+- Penalize bad IPs reported by FireHOL lists. Reputation is stored in the database so you need to run a migration:
 
     ```
     rails active_hashcash:install:migrations
