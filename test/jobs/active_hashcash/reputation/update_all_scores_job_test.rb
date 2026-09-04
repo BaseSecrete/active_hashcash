@@ -9,7 +9,7 @@ class ActiveHashcash::Reputation::UpdateAllScoresJobTest < ActiveSupport::TestCa
       ActiveHashcash::Reputation::UpdateAttackScoreJob,
       ActiveHashcash::Reputation::CleanupJob
     ]
-    with_stubbed_job_fetch(jobs.first, "1.2.3.4\n") do
+    with_stubbed_job_fetch(ActiveHashcash::Reputation::UpdateAbuseScoreJob, "1.2.3.4\n") do
       assert_enqueued_with(job: ActiveHashcash::Reputation::UpdateAllScoresJob, args: [jobs]) do
         ActiveHashcash::Reputation::UpdateAllScoresJob.perform_now
       end

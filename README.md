@@ -212,7 +212,7 @@ end
 The following lists are used to increase the complexity for bad IPs:
 
   - [FireHOL abusers 1 day](https://iplists.firehol.org/files/firehol_abusers_1d.netset)
-  - [FireHOL abusers 20 days](https://iplists.firehol.org/files/firehol_abusers_1d.netset)
+  - [FireHOL abusers 30 days](https://iplists.firehol.org/files/firehol_abusers_30d.netset)
   - [FireHOL anonymous](https://iplists.firehol.org/files/firehol_anonymous.netset) (Tor, public proxies, etc.)
   - [FireHOL level 1](https://iplists.firehol.org/files/firehol_level1.netset)
   - [FireHOL level 2](https://iplists.firehol.org/files/firehol_level2.netset)
