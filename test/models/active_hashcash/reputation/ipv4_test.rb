@@ -23,4 +23,15 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
     assert_equal(0, ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")[:anonymous])
     assert_equal(1, ActiveHashcash::Reputation::IPv4.scores("5.6.7.8")[:anonymous])
   end
+
+  def test_delete_zero_scores
+    assert_no_difference("ActiveHashcash::Reputation::IPv4.count") do
+      ActiveHashcash::Reputation::IPv4.delete_zero_scores
+    end
+
+    ActiveHashcash::Reputation::IPv4.first.update!(abuse_score: 0, anonymous_score: 0, attack_score: 0)
+    assert_difference("ActiveHashcash::Reputation::IPv4.count", -1) do
+      ActiveHashcash::Reputation::IPv4.delete_zero_scores
+    end
+  end
 end

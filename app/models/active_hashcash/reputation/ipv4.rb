@@ -43,6 +43,11 @@ module ActiveHashcash
           update_only: [column]
         )
       end
+
+      def self.delete_zero_scores
+        scope = where(anonymous_score: 0, abuse_score: 0, attack_score: 0)
+        loop { break if scope.limit(10_000).delete_all.zero? }
+      end
     end
   end
 end
