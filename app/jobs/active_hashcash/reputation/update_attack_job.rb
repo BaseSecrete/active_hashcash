@@ -10,16 +10,6 @@ module ActiveHashcash
         "https://iplists.firehol.org/files/firehol_level3.netset" => 2,
         "https://iplists.firehol.org/files/firehol_level4.netset" => 1
       }.freeze
-
-      def perform
-        entries = URLS.flat_map { |url, score| normalize(fetch(url), score) }
-        raise "Empty list" if entries.empty?
-        IPv4.reset_score(:attack_score, entries)
-      end
-
-      def normalize(body, score)
-        super(body).map { |ip| [ip, score] }
-      end
     end
   end
 end

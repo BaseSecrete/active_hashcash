@@ -7,11 +7,17 @@ require "uri"
 module ActiveHashcash
   module Reputation
     class UpdateJob < ApplicationJob
-      def self.url
-        raise NotImplementedError, "#{name} must implement .url"
+      def perform
+        entries = self.class::URLS.flat_map { |url, score| normalize(fetch(url), score) }
+        raise "Empty list" if entries.empty?
+        IPv4.reset_score(score_name, entries)
       end
 
-      def fetch(url = self.class.url)
+      def score_name
+        self.class.name.demodulize.delete_prefix("Update").delete_suffix("Job").downcase.to_sym
+      end
+
+      def fetch(url)
         uri = URI(url)
         body = +""
 
@@ -40,11 +46,11 @@ module ActiveHashcash
         10.megabytes
       end
 
-      def normalize(body)
+      def normalize(body, score)
         body.each_line.filter_map do |line|
           next if (line = line.strip).blank? || line.start_with?("#", ";")
           next if (ip = IPAddr.new(line)).private? || ip.loopback? || ip.link_local?
-          ip
+          [ip, score]
         rescue IPAddr::InvalidAddressError
           next
         end

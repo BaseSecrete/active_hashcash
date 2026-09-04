@@ -23,7 +23,8 @@ module ActiveHashcash
         {abuse: 0, anonymous: 0, attack: 0}
       end
 
-      def self.reset_score(column, entries)
+      def self.reset_score(name, entries)
+        column = :"#{name}_score"
         entries.uniq! { |ip, _| ip }
         transaction do
           where(column => 1..).update_all(column => 0)

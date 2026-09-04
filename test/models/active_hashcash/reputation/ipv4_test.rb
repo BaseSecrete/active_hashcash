@@ -16,10 +16,10 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
 
   def test_reset_score
     ip = IPAddr.new("1.2.3.4")
-    ActiveHashcash::Reputation::IPv4.reset_score(:anonymous_score, [[ip, 1]])
+    ActiveHashcash::Reputation::IPv4.reset_score(:anonymous, [[ip, 1]])
     assert_equal(1, ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")[:anonymous])
 
-    ActiveHashcash::Reputation::IPv4.reset_score(:anonymous_score, [[IPAddr.new("5.6.7.8"), 1]])
+    ActiveHashcash::Reputation::IPv4.reset_score(:anonymous, [[IPAddr.new("5.6.7.8"), 1]])
     assert_equal(0, ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")[:anonymous])
     assert_equal(1, ActiveHashcash::Reputation::IPv4.scores("5.6.7.8")[:anonymous])
   end
