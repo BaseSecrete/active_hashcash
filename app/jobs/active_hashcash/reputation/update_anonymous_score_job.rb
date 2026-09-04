@@ -10,6 +10,10 @@ module ActiveHashcash
       def max_body_size
         50.megabytes
       end
+
+      def read_timeout
+        20
+      end
     end
   end
 end

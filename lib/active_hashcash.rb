@@ -14,7 +14,7 @@ require "active_hashcash/engine"
 #     before_action :check_hashcash, only: :create
 #   end
 #
-# Your are welcome to override most of the methods to customize to your needs.
+# You are welcome to override most of the methods to customize to your needs.
 # For example, if your app runs behind a load balancer you should probably override #hashcash_ip_address.
 #
 module ActiveHashcash
@@ -91,7 +91,7 @@ module ActiveHashcash
     request.remote_ip
   end
 
-  # Return current request path to be saved to the successful ActiveHash::Stamp.
+  # Return current request path to be saved to the successful ActiveHashcash::Stamp.
   # If multiple forms are protected via hashcash this is an interesting info.
   def hashcash_request_path
     request.path
@@ -151,7 +151,7 @@ module ActiveHashcash
     # Override me for your own needs.
   end
 
-  # Call it inside the form that have to be protected and don't forget to initialize the JavaScript Hascash.setup().
+  # Call it inside the form that have to be protected and don't forget to initialize the JavaScript Hashcash.setup().
   # Unless you need something really special, you should not need to override this method.
   #
   #   <% form_for model do |form| %>

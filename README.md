@@ -161,7 +161,7 @@ By default its value is 20 and you can change it with `ActiveHashcash.bits = 24`
 
 ### Penalties
 
-To improve the protection a penalty is added for pushy and bad IPs.
+To improve protection, a penalty is added for pushy and bad IPs.
 
 ### For pushy IPs
 
@@ -217,8 +217,12 @@ The following lists are used to increase the complexity for bad IPs:
 
 The lists are stored in the model `ActiveHashcash::Reputation::IPv4` and it has to be synchronized by `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` anywhere from once per hour to once per day.
 If you update too often you might be blocked.
+Updating reputation (composite primary key + `upsert_all`) probably will not work before Rails 7.1.
 
-If you don't trust these external lists, don't call that job and delete all records of `IPv4`.
+If you don't trust these external lists, don't call that job and delete all records of `ActiveHashcash::Reputation::IPv4`.
+
+The penalty can be high enough that the proof of work is almost impossible.
+That is useful to neutralize bots.
 
 ## Testing Your Application
 
