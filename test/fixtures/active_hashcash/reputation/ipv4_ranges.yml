@@ -1,0 +1,6 @@
+ten_six_network:
+  first_address: !binary <%= [IPAddr.new("10.6.0.0/16").hton].pack("m0") %>
+  last_address: !binary <%= [IPAddr.new("10.6.0.0/16").to_range.last.hton].pack("m0") %>
+  abuse_score: 1
+  anonymous_score: 0
+  attack_score: 0
