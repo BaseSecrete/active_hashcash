@@ -26,11 +26,12 @@ module ActiveHashcash
       end
 
       def self.bulk_upsert_scores(entries, score_column)
-        entries = entries.uniq { |range_start, range_end, _| [range_start, range_end] }
+        entries = entries.uniq { |ip, _| ip }
         entries.each_slice(UPSERT_BATCH_SIZE) do |batch|
           upsert_all(
-            batch.map do |range_start, range_end, value|
-              {range_start: range_start, range_end: range_end, score_column => value}
+            batch.map do |ip, value|
+              range = ip.to_range
+              {range_start: range.first.hton, range_end: range.last.hton, score_column => value}
             end,
             record_timestamps: false,
             unique_by: [:range_start, :range_end],

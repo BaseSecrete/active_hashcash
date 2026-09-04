@@ -15,10 +15,9 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
   end
 
   def test_bulk_upsert_scores
-    range = IPAddr.new("1.2.3.4").to_range
-    range_start, range_end = range.first.hton, range.last.hton
-    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[range_start, range_end, 2]], :abuse_score)
-    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[range_start, range_end, 4]], :attack_score)
+    ip = IPAddr.new("1.2.3.4")
+    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[ip, 2]], :abuse_score)
+    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[ip, 4]], :attack_score)
 
     scores = ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")
     assert_equal(2, scores[:abuse])
