@@ -14,7 +14,7 @@ module ActiveHashcash
       end
 
       def score_name
-        self.class.name.demodulize.delete_prefix("Update").delete_suffix("ScoreJob").downcase.to_sym
+        self.class.name[/Update(\w*)ScoreJob/, 1].downcase.to_sym
       end
 
       def fetch(url)
