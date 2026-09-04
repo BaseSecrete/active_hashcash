@@ -39,14 +39,12 @@ module ActiveHashcash
             {first_address: range.first.hton, last_address: range.last.hton, column => value}
           end,
           record_timestamps: false,
-          unique_by: [:first_address, :last_address],
           update_only: [column]
         )
       end
 
       def self.delete_zero_scores
-        scope = where(anonymous_score: 0, abuse_score: 0, attack_score: 0)
-        loop { break if scope.limit(10_000).delete_all.zero? }
+        where(anonymous_score: 0, abuse_score: 0, attack_score: 0).delete_all
       end
     end
   end
