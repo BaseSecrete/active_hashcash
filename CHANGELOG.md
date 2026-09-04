@@ -2,14 +2,14 @@
 
 ## Unreleased
 
-- Penalize bad IPs reported by FireHOL lists. Reputation is stored in the database so you need to run a migration:
+- Penalize bad IPs reported by FireHOL lists. For this feature to do anything you must run the migration and schedule the sync job from a cron:
 
     ```
     rails active_hashcash:install:migrations
     rails db:migrate
     ```
 
-    Finally run `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` from a cron anywhere from once per hour to once per day.
+    Then schedule `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` anywhere from once per hour to once per day.
 
 - Add `ActiveHashcash.throttle_rules` to slow down pushy IPs
 

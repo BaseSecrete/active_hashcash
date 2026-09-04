@@ -215,11 +215,11 @@ The following lists are used to increase the complexity for bad IPs:
   - [FireHOL anonymous](https://iplists.firehol.org/files/firehol_anonymous.netset)
   - [FireHOL levels 1–4](https://iplists.firehol.org/files/firehol_level1.netset) (attacks)
 
-The lists are stored in the model `ActiveHashcash::Reputation::IPv4` and it has to be synchronized by `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` anywhere from once per hour to once per day.
+The lists are stored in the model `ActiveHashcash::Reputation::IPv4`. For this feature to do anything you must run the migration and schedule `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` from a cron anywhere from once per hour to once per day.
 If you update too often you might be blocked.
 Updating reputation (composite primary key + `upsert_all`) probably will not work before Rails 7.1.
 
-If you don't trust these external lists, don't call that job and delete all records of `ActiveHashcash::Reputation::IPv4`.
+If you don't trust these external lists, don't schedule that job and delete all records of `ActiveHashcash::Reputation::IPv4`.
 
 The penalty can be high enough that the proof of work is almost impossible.
 That is useful to neutralize bots.
