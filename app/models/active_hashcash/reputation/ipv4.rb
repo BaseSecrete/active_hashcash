@@ -7,13 +7,13 @@ module ActiveHashcash
     class IPv4 < ApplicationRecord
       self.table_name = "active_hashcash_reputation_ipv4s"
 
-      validates :range_start, :range_end, presence: true, length: {is: 4}
+      validates :first_address, :last_address, presence: true, length: {is: 4}
       validates :anonymous_score, inclusion: {in: 0..1}
       validates :abuse_score, inclusion: {in: 0..2}
       validates :attack_score, inclusion: {in: 0..4}
 
       scope :by_address, -> (string) {
-        where("? BETWEEN range_start AND range_end", ActiveRecord::Type::Binary.new.serialize(IPAddr.new(string).hton))
+        where("? BETWEEN first_address AND last_address", ActiveRecord::Type::Binary.new.serialize(IPAddr.new(string).hton))
       }
 
       def self.scores(ip)
@@ -36,10 +36,10 @@ module ActiveHashcash
         upsert_all(
           entries.map do |ip, value|
             range = ip.to_range
-            {range_start: range.first.hton, range_end: range.last.hton, column => value}
+            {first_address: range.first.hton, last_address: range.last.hton, column => value}
           end,
           record_timestamps: false,
-          unique_by: [:range_start, :range_end],
+          unique_by: [:first_address, :last_address],
           update_only: [column]
         )
       end

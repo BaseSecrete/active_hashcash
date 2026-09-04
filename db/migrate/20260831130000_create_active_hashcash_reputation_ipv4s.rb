@@ -7,11 +7,11 @@
 #
 class CreateActiveHashcashReputationIpv4s < ActiveRecord::Migration[5.2]
   def up
-    create_table :active_hashcash_reputation_ipv4s, primary_key: [:range_start, :range_end] do |t|
+    create_table :active_hashcash_reputation_ipv4s, primary_key: [:first_address, :last_address] do |t|
       # uint32 would have been the best choice for storing IPv4, but PostgreSQL does not support unsigned integers.
       # So, 4-byte binary column is a trade off for best efficiency compatible with PostgreSQL, MySQL and SQLite.
-      t.binary :range_start, limit: 4, null: false
-      t.binary :range_end, limit: 4, null: false
+      t.binary :first_address, limit: 4, null: false
+      t.binary :last_address, limit: 4, null: false
       t.integer :abuse_score, limit: 1, null: false, default: 0
       t.integer :anonymous_score, limit: 1, null: false, default: 0
       t.integer :attack_score, limit: 1, null: false, default: 0
@@ -20,12 +20,12 @@ class CreateActiveHashcashReputationIpv4s < ActiveRecord::Migration[5.2]
     # For SQLite, save space by suffixing the CREATE TABLE statement by `WITHOUT ROWID`:
     # execute <<-SQL
     #   CREATE TABLE IF NOT EXISTS "active_hashcash_reputation_ipv4s" (
-    #     "range_start" blob(4) NOT NULL,
-    #     "range_end" blob(4) NOT NULL,
+    #     "first_address" blob(4) NOT NULL,
+    #     "last_address" blob(4) NOT NULL,
     #     "abuse_score" integer(1) DEFAULT 0 NOT NULL,
     #     "anonymous_score" integer(1) DEFAULT 0 NOT NULL,
     #     "attack_score" integer(1) DEFAULT 0 NOT NULL,
-    #     PRIMARY KEY ("range_start", "range_end")
+    #     PRIMARY KEY ("first_address", "last_address")
     #   ) WITHOUT ROWID;
     # SQL
   end
