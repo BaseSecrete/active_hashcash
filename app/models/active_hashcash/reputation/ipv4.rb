@@ -17,7 +17,7 @@ module ActiveHashcash
       }
 
       def self.scores(ip)
-        abuse, anonymous, attack = by_address(ip).pick(Arel.sql("sum(abuse_score), sum(anonymous_score), sum(attack_score)"))
+        abuse, anonymous, attack = by_address(ip).pick(Arel.sql("max(abuse_score), max(anonymous_score), max(attack_score)"))
         {abuse: abuse || 0, anonymous: anonymous || 0, attack: attack || 0}
       rescue IPAddr::InvalidAddressError
         {abuse: 0, anonymous: 0, attack: 0}

@@ -81,7 +81,7 @@ class ActiveHashcashTest < ActiveSupport::TestCase
     controller = SampleController.new
     assert_equal(0, controller.hashcash_reputation_penalty)
     controller.stub(:hashcash_ip_address, "10.6.6.6") do
-      assert_equal(28, controller.hashcash_reputation_penalty)
+      assert_equal(24, controller.hashcash_reputation_penalty)
     end
   end
 

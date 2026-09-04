@@ -8,7 +8,7 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
     assert_equal(scores, ActiveHashcash::Reputation::IPv4.scores("10.0.0.0"))
     assert_equal(scores, ActiveHashcash::Reputation::IPv4.scores("10.0.0.1"))
     assert_equal(scores.merge(abuse: 1), ActiveHashcash::Reputation::IPv4.scores("10.6.0.0"))
-    assert_equal(scores.merge(abuse: 3, attack: 4), ActiveHashcash::Reputation::IPv4.scores("10.6.6.6"))
+    assert_equal(scores.merge(abuse: 2, attack: 4), ActiveHashcash::Reputation::IPv4.scores("10.6.6.6"))
     assert_equal(scores, ActiveHashcash::Reputation::IPv4.scores("10.255.255.255"))
     assert_equal(scores, ActiveHashcash::Reputation::IPv4.scores("11.0.0.0"))
     assert_equal(scores, ActiveHashcash::Reputation::IPv4.scores("invalid"))
