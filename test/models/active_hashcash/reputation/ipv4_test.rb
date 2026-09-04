@@ -14,13 +14,13 @@ class ActiveHashcash::Reputation::IPv4Test < ActiveSupport::TestCase
     assert_equal(scores, ActiveHashcash::Reputation::IPv4.scores("invalid"))
   end
 
-  def test_bulk_upsert_scores
+  def test_reset_score
     ip = IPAddr.new("1.2.3.4")
-    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[ip, 2]], :abuse_score)
-    ActiveHashcash::Reputation::IPv4.bulk_upsert_scores([[ip, 4]], :attack_score)
+    ActiveHashcash::Reputation::IPv4.reset_score(:anonymous_score, [[ip, 1]])
+    assert_equal(1, ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")[:anonymous])
 
-    scores = ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")
-    assert_equal(2, scores[:abuse])
-    assert_equal(4, scores[:attack])
+    ActiveHashcash::Reputation::IPv4.reset_score(:anonymous_score, [[IPAddr.new("5.6.7.8"), 1]])
+    assert_equal(0, ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")[:anonymous])
+    assert_equal(1, ActiveHashcash::Reputation::IPv4.scores("5.6.7.8")[:anonymous])
   end
 end

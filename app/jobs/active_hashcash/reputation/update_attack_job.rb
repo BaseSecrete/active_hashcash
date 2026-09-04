@@ -3,7 +3,7 @@
 module ActiveHashcash
   module Reputation
     class UpdateAttackJob < UpdateJob
-      # Higher scores first so bulk_upsert_scores keeps the max via uniq.
+      # Higher scores first so upsert_score_by_batch keeps the max via uniq.
       URLS = {
         "https://iplists.firehol.org/files/firehol_level1.netset" => 4,
         "https://iplists.firehol.org/files/firehol_level2.netset" => 3,
@@ -14,10 +14,7 @@ module ActiveHashcash
       def perform
         entries = URLS.flat_map { |url, score| normalize(fetch(url), score) }
         raise "Empty list" if entries.empty?
-        IPv4.transaction do
-          IPv4.where("attack_score > 0").update_all(attack_score: 0)
-          IPv4.bulk_upsert_scores(entries, :attack_score)
-        end
+        IPv4.reset_score(:attack_score, entries)
       end
 
       def normalize(body, score)

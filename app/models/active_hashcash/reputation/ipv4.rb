@@ -7,8 +7,6 @@ module ActiveHashcash
     class IPv4 < ApplicationRecord
       self.table_name = "active_hashcash_reputation_ipv4s"
 
-      UPSERT_BATCH_SIZE = 1000
-
       validates :range_start, :range_end, presence: true, length: {is: 4}
       validates :anonymous_score, inclusion: {in: 0..1}
       validates :abuse_score, inclusion: {in: 0..2}
@@ -25,19 +23,24 @@ module ActiveHashcash
         {abuse: 0, anonymous: 0, attack: 0}
       end
 
-      def self.bulk_upsert_scores(entries, score_column)
-        entries = entries.uniq { |ip, _| ip }
-        entries.each_slice(UPSERT_BATCH_SIZE) do |batch|
-          upsert_all(
-            batch.map do |ip, value|
-              range = ip.to_range
-              {range_start: range.first.hton, range_end: range.last.hton, score_column => value}
-            end,
-            record_timestamps: false,
-            unique_by: [:range_start, :range_end],
-            update_only: [score_column]
-          )
+      def self.reset_score(column, entries)
+        entries.uniq! { |ip, _| ip }
+        transaction do
+          where(column => 1..).update_all(column => 0)
+          entries.each_slice(10_000) { |batch| upsert_score(column, batch) }
         end
+      end
+
+      def self.upsert_score(column, entries)
+        upsert_all(
+          entries.map do |ip, value|
+            range = ip.to_range
+            {range_start: range.first.hton, range_end: range.last.hton, column => value}
+          end,
+          record_timestamps: false,
+          unique_by: [:range_start, :range_end],
+          update_only: [column]
+        )
       end
     end
   end

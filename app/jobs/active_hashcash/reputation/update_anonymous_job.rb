@@ -9,10 +9,7 @@ module ActiveHashcash
 
       def perform
         raise "Empty list" if (entries = normalize(fetch)).empty?
-        IPv4.transaction do
-          IPv4.where(anonymous_score: 1).update_all(anonymous_score: 0)
-          IPv4.bulk_upsert_scores(entries, :anonymous_score)
-        end
+        IPv4.reset_score(:anonymous_score, entries)
       end
 
       def max_body_size
