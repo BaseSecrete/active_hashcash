@@ -6,7 +6,7 @@ require "uri"
 
 module ActiveHashcash
   module Reputation
-    class UpdateJob < ApplicationJob
+    class UpdateScoreJob < ApplicationJob
       def perform
         entries = self.class::URLS.flat_map { |url, score| normalize(fetch(url), score) }
         raise "Empty list" if entries.empty?
@@ -14,7 +14,7 @@ module ActiveHashcash
       end
 
       def score_name
-        self.class.name.demodulize.delete_prefix("Update").delete_suffix("Job").downcase.to_sym
+        self.class.name.demodulize.delete_prefix("Update").delete_suffix("ScoreJob").downcase.to_sym
       end
 
       def fetch(url)

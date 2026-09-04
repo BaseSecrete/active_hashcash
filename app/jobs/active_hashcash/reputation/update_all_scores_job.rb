@@ -2,8 +2,8 @@
 
 module ActiveHashcash
   module Reputation
-    class UpdateAllJob < ApplicationJob
-      def perform(jobs = UpdateJob.subclasses + [CleanupJob])
+    class UpdateAllScoresJob < ApplicationJob
+      def perform(jobs = UpdateScoreJob.subclasses + [CleanupJob])
         if (job = jobs.shift)
           job.perform_now
           self.class.perform_later(jobs) if jobs.any?

@@ -215,7 +215,7 @@ The following lists are used to increase the complexity for bad IPs:
   - [FireHOL anonymous](https://iplists.firehol.org/files/firehol_anonymous.netset)
   - [FireHOL levels 1–4](https://iplists.firehol.org/files/firehol_level1.netset) (attacks)
 
-The lists are stored in the model `ActiveHashcash::Reputation::IPv4` and it has to be synchronized by `ActiveHashcash::Reputation::UpdateAllJob.perform_later` anywhere from once per hour to once per day.
+The lists are stored in the model `ActiveHashcash::Reputation::IPv4` and it has to be synchronized by `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` anywhere from once per hour to once per day.
 If you update too often you might be blocked.
 
 If you don't trust these external lists, don't call that job and delete all records of `IPv4`.

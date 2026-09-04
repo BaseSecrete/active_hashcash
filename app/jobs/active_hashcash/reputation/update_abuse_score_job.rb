@@ -2,7 +2,7 @@
 
 module ActiveHashcash
   module Reputation
-    class UpdateAbuseJob < UpdateJob
+    class UpdateAbuseScoreJob < UpdateScoreJob
       # Higher scores first so upsert_score_by_batch keeps the max via uniq.
       URLS = {
         "https://iplists.firehol.org/files/firehol_abusers_1d.netset" => 2,

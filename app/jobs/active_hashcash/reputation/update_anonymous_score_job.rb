@@ -2,7 +2,7 @@
 
 module ActiveHashcash
   module Reputation
-    class UpdateAnonymousJob < UpdateJob
+    class UpdateAnonymousScoreJob < UpdateScoreJob
       URLS = {
         "https://iplists.firehol.org/files/firehol_anonymous.netset" => 1
       }.freeze
