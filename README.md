@@ -211,9 +211,13 @@ end
 
 The following lists are used to increase the complexity for bad IPs:
 
-  - [FireHOL abusers](https://iplists.firehol.org/files/firehol_abusers_1d.netset) (1d and 30d)
-  - [FireHOL anonymous](https://iplists.firehol.org/files/firehol_anonymous.netset)
-  - [FireHOL levels 1–4](https://iplists.firehol.org/files/firehol_level1.netset) (attacks)
+  - [FireHOL abusers 1 day](https://iplists.firehol.org/files/firehol_abusers_1d.netset)
+  - [FireHOL abusers 20 days](https://iplists.firehol.org/files/firehol_abusers_1d.netset)
+  - [FireHOL anonymous](https://iplists.firehol.org/files/firehol_anonymous.netset) (Tor, public proxies, etc.)
+  - [FireHOL level 1](https://iplists.firehol.org/files/firehol_level1.netset)
+  - [FireHOL level 2](https://iplists.firehol.org/files/firehol_level2.netset)
+  - [FireHOL level 3](https://iplists.firehol.org/files/firehol_level3.netset)
+  - [FireHOL level 4](https://iplists.firehol.org/files/firehol_level4.netset)
 
 The lists are stored in the model `ActiveHashcash::Reputation::IPv4`. For this feature to do anything you must run the migration and schedule `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` from a cron anywhere from once per hour to once per day.
 If you update too often you might be blocked.
