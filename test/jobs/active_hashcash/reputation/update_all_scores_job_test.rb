@@ -4,12 +4,13 @@ class ActiveHashcash::Reputation::UpdateAllScoresJobTest < ActiveSupport::TestCa
   include ActiveJob::TestHelper
 
   def test_perform
-      ActiveHashcash::Reputation::UpdateAbuseScoreJob
-      ActiveHashcash::Reputation::UpdateAnonymousScoreJob
-      ActiveHashcash::Reputation::UpdateAttackScoreJob
-    jobs = ActiveHashcash::Reputation::UpdateScoreJob.subclasses + [ActiveHashcash::Reputation::CleanupJob]
+    jobs = [
+      ActiveHashcash::Reputation::UpdateAnonymousScoreJob,
+      ActiveHashcash::Reputation::UpdateAttackScoreJob,
+      ActiveHashcash::Reputation::CleanupJob
+    ]
     with_stubbed_job_fetch(jobs.first, "1.2.3.4\n") do
-      assert_enqueued_with(job: ActiveHashcash::Reputation::UpdateAllScoresJob, args: [jobs[1..]]) do
+      assert_enqueued_with(job: ActiveHashcash::Reputation::UpdateAllScoresJob, args: [jobs]) do
         ActiveHashcash::Reputation::UpdateAllScoresJob.perform_now
       end
     end
