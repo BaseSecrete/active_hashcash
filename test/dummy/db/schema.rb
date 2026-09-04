@@ -19,14 +19,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_31_130000) do
     t.binary "last_address", limit: 4, null: false
   end
 
-  create_table "active_hashcash_reputation_locks", force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "locked_at", precision: nil
-    t.string "source", null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["source"], name: "index_active_hashcash_reputation_locks_on_source", unique: true
-  end
-
   create_table "active_hashcash_stamps", force: :cascade do |t|
     t.integer "bits", null: false
     t.json "context"
