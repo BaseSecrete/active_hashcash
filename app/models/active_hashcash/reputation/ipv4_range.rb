@@ -4,8 +4,8 @@ require "ipaddr"
 
 module ActiveHashcash
   module Reputation
-    class IPv4 < ApplicationRecord
-      self.table_name = "active_hashcash_reputation_ipv4s"
+    class IPv4Range < ApplicationRecord
+      self.table_name = "active_hashcash_reputation_ipv4_ranges"
 
       validates :first_address, :last_address, presence: true, length: {is: 4}
       validates :anonymous_score, inclusion: {in: 0..1}

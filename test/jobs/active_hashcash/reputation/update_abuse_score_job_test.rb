@@ -7,8 +7,8 @@ class ActiveHashcash::Reputation::UpdateAbuseScoreJobTest < ActiveSupport::TestC
     with_stubbed_job_fetch(ActiveHashcash::Reputation::UpdateAbuseScoreJob, "1.2.3.4\n203.0.113.0/24\n") do
       ActiveHashcash::Reputation::UpdateAbuseScoreJob.perform_now
     end
-    assert_equal(2, ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")[:abuse])
-    assert_equal(2, ActiveHashcash::Reputation::IPv4.scores("203.0.113.50")[:abuse])
+    assert_equal(2, ActiveHashcash::Reputation.scores("1.2.3.4")[:abuse])
+    assert_equal(2, ActiveHashcash::Reputation.scores("203.0.113.50")[:abuse])
   end
 
   def test_perform_keeps_higher_score
@@ -21,7 +21,7 @@ class ActiveHashcash::Reputation::UpdateAbuseScoreJobTest < ActiveSupport::TestC
     ActiveHashcash::Reputation::UpdateAbuseScoreJob.stub(:new, job) do
       ActiveHashcash::Reputation::UpdateAbuseScoreJob.perform_now
     end
-    assert_equal(2, ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")[:abuse])
-    assert_equal(1, ActiveHashcash::Reputation::IPv4.scores("5.6.7.8")[:abuse])
+    assert_equal(2, ActiveHashcash::Reputation.scores("1.2.3.4")[:abuse])
+    assert_equal(1, ActiveHashcash::Reputation.scores("5.6.7.8")[:abuse])
   end
 end

@@ -22,6 +22,6 @@ class ActiveHashcash::Reputation::UpdateAllScoresJobTest < ActiveSupport::TestCa
         ActiveHashcash::Reputation::UpdateAllScoresJob.perform_now([ActiveHashcash::Reputation::UpdateAttackScoreJob])
       end
     end
-    assert_equal(4, ActiveHashcash::Reputation::IPv4.scores("1.2.3.4")[:attack])
+    assert_equal(4, ActiveHashcash::Reputation.scores("1.2.3.4")[:attack])
   end
 end

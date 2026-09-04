@@ -10,7 +10,11 @@ module ActiveHashcash
       def perform
         entries = self.class::URLS.flat_map { |url, score| normalize(fetch(url), score) }
         raise "Empty list" if entries.empty?
-        IPv4.reset_score(score_name, entries)
+        addresses, ranges = entries.partition { |ip, _| ip.prefix == 32 }
+        IPv4Address.transaction do
+          IPv4Address.reset_score(score_name, addresses)
+          IPv4Range.reset_score(score_name, ranges)
+        end
       end
 
       def score_name
