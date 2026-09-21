@@ -14,8 +14,8 @@ require "active_hashcash/engine"
 #     before_action :check_hashcash, only: :create
 #   end
 #
-# Your are welcome to override most of the methods to customize to your needs.
-# For example, if your app runs behind a loab balancer you should probably override #hashcash_ip_address.
+# You are welcome to override most of the methods to customize to your needs.
+# For example, if your app runs behind a load balancer you should probably override #hashcash_ip_address.
 #
 module ActiveHashcash
   extend ActiveSupport::Concern
@@ -29,14 +29,6 @@ module ActiveHashcash
   # This is base complexity.
   # Consider lowering it to not exclude people with old and slow devices.
   mattr_accessor :bits, instance_accessor: false, default: 20
-
-  # Returns the sorted Tor exit IP list from Rails.cache.
-  # Enqueues ActiveHashcash::UpdateTorExitIpsJob when the list is missing or older than one hour.
-  def self.tor_exit_ips
-    cached = Rails.cache.read(UpdateTorExitIpsJob::CACHE_KEY)
-    UpdateTorExitIpsJob.perform_later_once if !cached || !cached[:updated_at] || cached[:updated_at] < 1.hour.ago
-    cached&.fetch(:ips, []) || []
-  end
 
   # Flexible complexity penalty rules applied to pushy IP addresses.
   # Each rule must be a hash with:
@@ -99,7 +91,7 @@ module ActiveHashcash
     request.remote_ip
   end
 
-  # Return current request path to be saved to the sucessful ActiveHash::Stamp.
+  # Return current request path to be saved to the successful ActiveHashcash::Stamp.
   # If multiple forms are protected via hashcash this is an interesting info.
   def hashcash_request_path
     request.path
@@ -112,13 +104,13 @@ module ActiveHashcash
 
   # This is the resource used to build the hashcash stamp.
   # By default the host name is returned.
-  # It' should be good for most cases and prevent from reusing the same stamp between sites.
+  # It should be good for most cases and prevent from reusing the same stamp between sites.
   def hashcash_resource
     ActiveHashcash.resource || request.host
   end
 
   # Returns the complexity, the higher the slower it is.
-  # Eventually adds penalties for pushy IPs and Tor exits
+  # Eventually adds penalties for bad and pushy IPs.
   def hashcash_bits
     (ActiveHashcash.bits + hashcash_throttle_penalty + hashcash_reputation_penalty).floor
   end
@@ -133,14 +125,8 @@ module ActiveHashcash
   end
 
   # Compute a reputation penalty for the current IP.
-  # Returns #hashcash_tor_penalty when the IP is a known Tor exit node.
   def hashcash_reputation_penalty
-    ActiveHashcash.tor_exit_ips.bsearch { |ip| hashcash_ip_address <=> ip } ? hashcash_tor_penalty : 0
-  end
-
-  # Bits added when the request comes from a Tor exit node.
-  def hashcash_tor_penalty
-    4
+    Reputation.scores(hashcash_ip_address).values.sum * 4
   end
 
   # Override if you want to rename the hashcash param.
@@ -165,7 +151,7 @@ module ActiveHashcash
     # Override me for your own needs.
   end
 
-  # Call it inside the form that have to be protected and don't forget to initialize the JavaScript Hascash.setup().
+  # Call it inside the form that have to be protected and don't forget to initialize the JavaScript Hashcash.setup().
   # Unless you need something really special, you should not need to override this method.
   #
   #   <% form_for model do |form| %>

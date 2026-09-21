@@ -2,7 +2,15 @@
 
 ## Unreleased
 
-- Penalize Tor exit IPs by 4 bits
+- Penalize bad IPs reported by FireHOL lists. For this feature to do anything you must run the migration and schedule the sync job from a cron:
+
+    ```
+    rails active_hashcash:install:migrations
+    rails db:migrate
+    ```
+
+    Then schedule `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` anywhere from once per hour to once per day.
+
 - Add `ActiveHashcash.throttle_rules` to slow down pushy IPs
 
 ## 0.5.0 (2026-08-08)

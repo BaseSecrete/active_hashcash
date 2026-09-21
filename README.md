@@ -161,7 +161,11 @@ By default its value is 20 and you can change it with `ActiveHashcash.bits = 24`
 
 ### Penalties
 
-A penalty is added for pushy IPs which submit valid stamps too fast.
+To improve protection, a penalty is added for pushy and bad IPs.
+
+### For pushy IPs
+
+A penalty is added for IPs which submit valid stamps too fast.
 The goal is to slow down attackers using a botnet.
 The penalty rules can be defined like this.
 
@@ -202,6 +206,27 @@ class SessionController < ApplicationController
   end
 end
 ```
+
+### For IPs with poor reputation
+
+The following lists are used to increase the complexity for bad IPs:
+
+  - [FireHOL abusers 1 day](https://iplists.firehol.org/files/firehol_abusers_1d.netset)
+  - [FireHOL abusers 30 days](https://iplists.firehol.org/files/firehol_abusers_30d.netset)
+  - [FireHOL anonymous](https://iplists.firehol.org/files/firehol_anonymous.netset) (Tor, public proxies, etc.)
+  - [FireHOL level 1](https://iplists.firehol.org/files/firehol_level1.netset)
+  - [FireHOL level 2](https://iplists.firehol.org/files/firehol_level2.netset)
+  - [FireHOL level 3](https://iplists.firehol.org/files/firehol_level3.netset)
+  - [FireHOL level 4](https://iplists.firehol.org/files/firehol_level4.netset)
+
+The lists are stored in `ActiveHashcash::Reputation::IPv4Address` (single IPs) and `ActiveHashcash::Reputation::IPv4Range` (CIDR ranges). For this feature to do anything you must run the migration and schedule `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` from a cron anywhere from once per hour to once per day.
+If you update too often you might be blocked.
+Updating reputation for ranges probably will not work before Rails 7.1 because of composite primary key + `upsert_all`.
+
+If you don't trust these external lists, don't schedule that job and delete all records of `ActiveHashcash::Reputation::IPv4Address` and `ActiveHashcash::Reputation::IPv4Range`.
+
+The penalty can be high enough that the proof of work is almost impossible.
+That is useful to neutralize bots.
 
 ## Testing Your Application
 

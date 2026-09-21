@@ -1,0 +1,5 @@
+ten_evil:
+  id: !binary <%= [IPAddr.new("10.6.6.6").hton].pack("m0") %>
+  abuse_score: 2
+  anonymous_score: 0
+  attack_score: 4
