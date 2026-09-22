@@ -1,6 +1,6 @@
 # Changelog of ActiveHashcash
 
-## Unreleased
+## 0.6.0 (2026-09-22)
 
 - Penalize bad IPs reported by FireHOL lists. For this feature to do anything you must run the migration and schedule the sync job from a cron:
 
