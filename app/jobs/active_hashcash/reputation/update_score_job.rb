@@ -53,7 +53,7 @@ module ActiveHashcash
       def normalize(body, score)
         body.each_line.filter_map do |line|
           next if (line = line.strip).blank? || line.start_with?("#", ";")
-          next if (ip = IPAddr.new(line)).private? || ip.loopback? || ip.link_local? || !ip.ipv4? || ip.prefix < 16
+          next if (ip = IPAddr.new(line)).private? || ip.loopback? || ip.link_local? || !ip.ipv4? || ip.prefix < IPv4Range::MIN_PREFIX
           [ip, score]
         rescue IPAddr::InvalidAddressError
           next

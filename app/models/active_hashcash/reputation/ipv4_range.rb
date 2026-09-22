@@ -7,13 +7,22 @@ module ActiveHashcash
     class IPv4Range < ApplicationRecord
       self.table_name = "active_hashcash_reputation_ipv4_ranges"
 
+      MIN_PREFIX = 16 # Reject nets too large
+
       validates :first_address, :last_address, presence: true, length: {is: 4}
       validates :anonymous_score, inclusion: {in: 0..1}
       validates :abuse_score, inclusion: {in: 0..2}
       validates :attack_score, inclusion: {in: 0..4}
 
+      # PK probes for ancestor CIDRs /MIN_PREFIX../32 (wider prefixes are ignored).
       scope :by_address, -> (string) {
-        where("? BETWEEN first_address AND last_address", ActiveRecord::Type::Binary.new.serialize(IPAddr.new(string).hton))
+        ip = IPAddr.new(string)
+        binary = ActiveRecord::Type::Binary.new
+        pairs = (MIN_PREFIX..32).map do |prefix|
+          range = IPAddr.new("#{ip}/#{prefix}").to_range
+          [binary.serialize(range.first.hton), binary.serialize(range.last.hton)]
+        end
+        where(pairs.map { "(first_address = ? AND last_address = ?)" }.join(" OR "), *pairs.flatten)
       }
 
       def self.scores(ip)
