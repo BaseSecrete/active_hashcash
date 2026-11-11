@@ -1,5 +1,11 @@
 # Changelog of ActiveHashcash
 
+## 0.6.1 (2026-11-11)
+
+- Reject non-canonical stamps so one proof of work cannot be spent multiple times (@schmijos)
+- Treat unparsable stamp dates as invalid hashcash instead of raising a server error (@schmijos)
+- Cap stamp field lengths to prevent storage bloat and index overflow errors (@schmijos)
+
 ## 0.6.0 (2026-09-22)
 
 - Penalize bad IPs reported by FireHOL lists. For this feature to do anything you must run the migration and schedule the sync job from a cron:
