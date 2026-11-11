@@ -50,5 +50,24 @@ module ActiveHashcash
       assert(ActiveHashcash::Stamp.spend(stamp.to_s, "resource", 2, Date.yesterday), "first time spent")
       refute(ActiveHashcash::Stamp.spend(stamp.to_s, "resource", 2, Date.yesterday), "cannot be spent twice")
     end
+
+    def test_spend_rejects_non_canonical_replay
+      stamp = ActiveHashcash::Stamp.mint("resource", bits: 2, date: Date.yesterday)
+      assert(ActiveHashcash::Stamp.spend(stamp.to_s, "resource", 2, Date.yesterday))
+      ["01", "+1", "1x"].each do |version|
+        replay = stamp.to_s.sub(/\A1:/, "#{version}:")
+        refute(ActiveHashcash::Stamp.spend(replay, "resource", 2, Date.yesterday), "replayed as #{replay}")
+      end
+      assert_equal(1, ActiveHashcash::Stamp.where(rand: stamp.rand).count)
+    end
+
+    def test_spend_rejects_invalid_date
+      refute(ActiveHashcash::Stamp.spend("1:2:261399:resource:sha256:abc:1", "resource", 2, Date.yesterday))
+    end
+
+    def test_spend_rejects_oversized_fields
+      stamp = ActiveHashcash::Stamp.mint("resource", bits: 2, date: Date.yesterday, rand: "a" * 256)
+      refute(ActiveHashcash::Stamp.spend(stamp.to_s, "resource", 2, Date.yesterday))
+    end
   end
 end

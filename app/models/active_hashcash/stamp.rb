@@ -5,6 +5,7 @@ module ActiveHashcash
   # Unless you need something really specific, you should not need interact directly with that class.
   class Stamp < ApplicationRecord
     validates_presence_of :version, :bits, :date, :resource, :rand, :counter
+    validates_length_of :version, :resource, :ext, :rand, :counter, maximum: 255
 
     scope :created_from, -> (date) { where(created_at: date..) }
     scope :created_to, -> (date) { where(created_at: ..date) }
@@ -48,6 +49,7 @@ module ActiveHashcash
     # Saving in the database prevent from double spending the same stamp.
     def self.spend(string, resource, bits, date, options = {})
       return false unless stamp = parse(string)
+      return false if stamp.to_s != string.to_s
       stamp.attributes = options
       stamp.verify(resource, bits, date) && stamp.save
     rescue ActiveRecord::RecordNotUnique
@@ -61,6 +63,8 @@ module ActiveHashcash
       args = string.to_s.split(":")
       return if args.size != 7
       new(version: args[0], bits: args[1], date: Date.strptime(args[2], ActiveHashcash.date_format), resource: args[3], ext: args[4], rand: args[5], counter: args[6])
+    rescue Date::Error
+      nil
     end
 
     def self.mint(resource, attributes = {})
