@@ -171,14 +171,16 @@ The penalty rules can be defined like this.
 
 ```ruby
 ActiveHashcash.throttle_rules = [
-  {period: 1.hour, rate: 0.5},
-  {period: 24.hours, rate: 0.25}
+  {period: 15.minutes, rate: 0.5},
+  {period: 1.hour, rate: 0.25},
+  {period: 1.day, rate: 0.125},
 ]
 ```
 
-For every valid stamp sent less than an hour ago, a penalty of 0.5 is added.
-Then, for every valid stamp sent between 1 and 24 hours ago a penalty of 0.25 is added.
-Thus, if an IP sent 1 stamp one minute ago, and 3 others few hours ago, it adds a complexity of `(1 * 0.5 + 3 * 0.25).floor # => 1`.
+For every valid stamp sent less than 15 minutes ago, a penalty of 0.5 is added.
+Then, for every valid stamp sent between 15 minutes and 1 hour ago a penalty of 0.25 is added.
+Then, for every valid stamp sent between 1 hour and 1 day ago a penalty of 0.125 is added.
+Thus, if an IP sent 1 stamp one minute ago, 2 others 30 minutes ago, and 4 others few hours ago, it adds a complexity of `(1 * 0.5 + 2 * 0.25 + 4 * 0.125).floor # => 1`.
 So next hashcash must have a complexity of `ActiveHashcash.bits + 1`.
 
 If you have many users behind the same IP, such as a NAT, you can either lower the rates or disable the penalty.

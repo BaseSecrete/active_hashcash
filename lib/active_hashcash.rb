@@ -38,13 +38,14 @@ module ActiveHashcash
   #
   # Example:
   #   ActiveHashcash.throttle_rules = [
-  #     {period: 5.minutes, rate: 0.5},
-  #     {period: 1.hour, rate: 0.34},
-  #     {period: 1.day, rate: 0.25}
+  #     {period: 15.minutes, rate: 0.5},
+  #     {period: 1.hour, rate: 0.25},
+  #     {period: 1.day, rate: 0.125}
   #   ]
   mattr_reader :throttle_rules, instance_accessor: false, default: [
-    {period: 1.hour, rate: 0.5},
-    {period: 24.hours, rate: 0.25}
+    {period: 15.minutes, rate: 0.5},
+    {period: 1.hour, rate: 0.25},
+    {period: 1.day, rate: 0.125},
   ]
 
   def self.throttle_rules=(rules)

@@ -1,5 +1,9 @@
 # Changelog of ActiveHashcash
 
+## Unreleased
+
+- Tighten default throttle rules with 15m/1h/1d windows
+
 ## 0.6.1 (2026-11-11)
 
 - Reject non-canonical stamps so one proof of work cannot be spent multiple times (@schmijos)

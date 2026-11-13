@@ -28,17 +28,17 @@ class ActiveHashcashTest < ActiveSupport::TestCase
     ActiveHashcash::Stamp.parse("1:20:220623:test:sha256:MPWRGuN3itbd1NiQ:004").update!(ip_address: "127.0.0.1")
     assert_equal((bits + 4 * 0.5).floor, controller.hashcash_bits)
 
-    ActiveHashcash::Stamp.parse("1:20:220623:test:sha256:MPWRGuN3itbd1NiQ:005").update!(ip_address: "127.0.0.1", created_at: 2.hours.ago)
+    ActiveHashcash::Stamp.parse("1:20:220623:test:sha256:MPWRGuN3itbd1NiQ:005").update!(ip_address: "127.0.0.1", created_at: 30.minutes.ago)
     assert_equal((bits + 4 * 0.5 + 1 * 0.25).floor, controller.hashcash_bits)
 
-    ActiveHashcash::Stamp.parse("1:20:220623:test:sha256:MPWRGuN3itbd1NiQ:006").update!(ip_address: "127.0.0.1", created_at: 2.hours.ago)
+    ActiveHashcash::Stamp.parse("1:20:220623:test:sha256:MPWRGuN3itbd1NiQ:006").update!(ip_address: "127.0.0.1", created_at: 30.minutes.ago)
     assert_equal((bits + 4 * 0.5 + 2 * 0.25).floor, controller.hashcash_bits)
 
     ActiveHashcash::Stamp.parse("1:20:220623:test:sha256:MPWRGuN3itbd1NiQ:007").update!(ip_address: "127.0.0.1", created_at: 2.hours.ago)
-    assert_equal((bits + 4 * 0.5 + 3 * 0.25).floor, controller.hashcash_bits)
+    assert_equal((bits + 4 * 0.5 + 2 * 0.25 + 1 * 0.125).floor, controller.hashcash_bits)
 
     ActiveHashcash::Stamp.parse("1:20:220623:test:sha256:MPWRGuN3itbd1NiQ:008").update!(ip_address: "127.0.0.1", created_at: 2.hours.ago)
-    assert_equal((bits + 4 * 0.5 + 4 * 0.25).floor, controller.hashcash_bits)
+    assert_equal((bits + 4 * 0.5 + 2 * 0.25 + 2 * 0.125).floor, controller.hashcash_bits)
   end
 
   def test_throttle_rules_are_sorted
