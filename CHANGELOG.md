@@ -1,5 +1,9 @@
 # Changelog of ActiveHashcash
 
+## Unreleased
+
+- Fix #24 Web Worker breaking when hashcash.js is minified by renaming the outer `self` variable so worker `self` stays a free reference (@Spone)
+
 ## 0.6.1 (2026-11-11)
 
 - Reject non-canonical stamps so one proof of work cannot be spent multiple times (@schmijos)

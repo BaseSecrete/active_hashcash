@@ -150,7 +150,7 @@ Hashcash.Stamp.prototype.stopClock = function() {
 // because it avoids the per-call Promise/microtask overhead entirely.
 Hashcash.Stamp.prototype.work = function(callback) {
   this.startClock()
-  var self = this
+  var stamp = this
 
   var workerCode = function() {
     // SHA-256 round constants (FIPS 180-4 §4.2.2)
@@ -297,11 +297,11 @@ Hashcash.Stamp.prototype.work = function(callback) {
     if (e.data.found) {
       Hashcash._worker = null
       Hashcash._workerUrl = null
-      self.counter = e.data.counter
-      self.stopClock()
+      stamp.counter = e.data.counter
+      stamp.stopClock()
       worker.terminate()
       URL.revokeObjectURL(workerUrl)
-      callback(self)
+      callback(stamp)
     }
   }
 
