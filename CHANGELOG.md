@@ -1,6 +1,6 @@
 # Changelog of ActiveHashcash
 
-## Unreleased
+## 0.6.2 (2026-11-13)
 
 - Fix #25 Stop adding lib/ to asset paths so Propshaft doesn't publish Ruby sources (@Spone)
 - Fix #24 Web Worker breaking when hashcash.js is minified by renaming the outer `self` variable so worker `self` stays a free reference (@Spone)
