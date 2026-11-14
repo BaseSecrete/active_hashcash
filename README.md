@@ -218,6 +218,7 @@ The following lists are used to increase the complexity for bad IPs:
   - [FireHOL level 2](https://iplists.firehol.org/files/firehol_level2.netset)
   - [FireHOL level 3](https://iplists.firehol.org/files/firehol_level3.netset)
   - [FireHOL level 4](https://iplists.firehol.org/files/firehol_level4.netset)
+  - [NetAPI honeypot attackers](https://netapi.com/compromised-ips/) (addresses that attacked NetAPI's honeypot sensors in the last 48 hours)
 
 The lists are stored in `ActiveHashcash::Reputation::IPv4Address` (single IPs) and `ActiveHashcash::Reputation::IPv4Range` (CIDR ranges). For this feature to do anything you must run the migration and schedule `ActiveHashcash::Reputation::UpdateAllScoresJob.perform_later` from a cron anywhere from once per hour to once per day.
 If you update too often you might be blocked.

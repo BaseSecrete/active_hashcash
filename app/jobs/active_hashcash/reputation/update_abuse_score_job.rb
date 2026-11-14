@@ -6,6 +6,7 @@ module ActiveHashcash
       # Higher scores first so upsert_score keeps the max via uniq.
       URLS = {
         "https://iplists.firehol.org/files/firehol_abusers_1d.netset" => 2,
+        "https://netapi.com/api2/?method=compromised&dataset_type=ip" => 2,
         "https://iplists.firehol.org/files/firehol_abusers_30d.netset" => 1
       }.freeze
     end
