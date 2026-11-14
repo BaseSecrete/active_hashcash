@@ -1,5 +1,7 @@
 # Changelog of ActiveHashcash
 
+- Fix lost original submit button text with Turbo Drive #29
+
 ## 0.6.1 (2026-11-11)
 
 - Reject non-canonical stamps so one proof of work cannot be spent multiple times (@schmijos)
