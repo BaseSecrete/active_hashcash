@@ -46,10 +46,10 @@ Hashcash.setSubmitText = function(submit, text) {
     return
   }
   if (submit.tagName == "BUTTON") {
-    !submit.originalValue && (submit.originalValue = submit.innerHTML)
+    !submit.dataset.originalValue && (submit.dataset.originalValue = submit.innerHTML)
     submit.innerHTML = text
   } else {
-    !submit.originalValue && (submit.originalValue = submit.value)
+    !submit.dataset.originalValue && (submit.dataset.originalValue = submit.value)
     submit.value = text
   }
 }
@@ -63,7 +63,7 @@ Hashcash.disableParentForm = function(input, options) {
 
 Hashcash.enableParentForm = function(input, options) {
   input.form.querySelectorAll("[type=submit]").forEach(function(submit) {
-    Hashcash.setSubmitText(submit, submit.originalValue)
+    Hashcash.setSubmitText(submit, submit.dataset.originalValue)
     submit.disabled = null
   })
 }
@@ -134,7 +134,7 @@ Hashcash.Stamp.prototype.stopClock = function() {
 // because it avoids the per-call Promise/microtask overhead entirely.
 Hashcash.Stamp.prototype.work = function(callback) {
   this.startClock()
-  var self = this
+  var stamp = this
 
   var workerCode = function() {
     // SHA-256 round constants (FIPS 180-4 §4.2.2)
@@ -281,11 +281,11 @@ Hashcash.Stamp.prototype.work = function(callback) {
     if (e.data.found) {
       Hashcash._worker = null
       Hashcash._workerUrl = null
-      self.counter = e.data.counter
-      self.stopClock()
+      stamp.counter = e.data.counter
+      stamp.stopClock()
       worker.terminate()
       URL.revokeObjectURL(workerUrl)
-      callback(self)
+      callback(stamp)
     }
   }
 
