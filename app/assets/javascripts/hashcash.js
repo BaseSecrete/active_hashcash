@@ -1,18 +1,16 @@
 // http://www.hashcash.org/docs/hashcash.html
 // <input type="hidden" name="hashcash" data-hashcash="{resource: 'site.example', bits: 16}"/>
-Hashcash = function(input) {
+Hashcash = window.Hashcash || function(input) {
   options = JSON.parse(input.getAttribute("data-hashcash"))
   Hashcash.disableParentForm(input, options)
   input.dispatchEvent(new CustomEvent("hashcash:mint", {bubbles: true}))
 
   Hashcash.mint(options.resource, options, function(stamp) {
-    // Guard against Turbo navigation: if the input is no longer in the DOM,
-    // the user has navigated away and we should silently discard the result.
-    if (!input.isConnected) return
-
-    input.value = stamp.toString()
-    Hashcash.enableParentForm(input, options)
-    input.dispatchEvent(new CustomEvent("hashcash:minted", {bubbles: true, detail: {stamp: stamp}}))
+    if (input.isConnected) {
+      input.value = stamp.toString()
+      Hashcash.enableParentForm(input, options)
+      input.dispatchEvent(new CustomEvent("hashcash:minted", {bubbles: true, detail: {stamp: stamp}}))
+    }
   })
 
   this.input = input
@@ -20,11 +18,15 @@ Hashcash = function(input) {
 }
 
 Hashcash.setup = function() {
-  if (document.readyState != "loading") {
-    var input = document.querySelector("input#hashcash")
-    input && new Hashcash(input)
-  } else
+  if (document.readyState == "loading") {
     document.addEventListener("DOMContentLoaded", Hashcash.setup)
+  } else {
+    var input = document.querySelector("input#hashcash")
+    if (input && !input.dataset.hashcashStarted) {
+      input.dataset.hashcashStarted = "1"
+      new Hashcash(input)
+    }
+  }
 }
 
 // Terminate the active worker and clean up its Blob URL.
@@ -38,24 +40,6 @@ Hashcash.cleanup = function() {
     Hashcash._workerUrl = null
   }
 }
-
-// Turbo Drive: terminate the worker when navigating away so it doesn't
-// complete after the page has changed, and restore the form state for
-// Turbo's page cache so the snapshot doesn't have disabled buttons.
-document.addEventListener("turbo:before-visit", Hashcash.cleanup)
-document.addEventListener("turbo:before-cache", function() {
-  Hashcash.cleanup()
-  var input = document.querySelector("input#hashcash")
-  if (input && input.form) {
-    input.value = ""
-    input.form.querySelectorAll("[type=submit]").forEach(function(submit) {
-      if (submit.dataset.originalValue) {
-        Hashcash.setSubmitText(submit, submit.dataset.originalValue)
-      }
-      submit.disabled = null
-    })
-  }
-})
 
 Hashcash.setSubmitText = function(submit, text) {
   if (!text) {

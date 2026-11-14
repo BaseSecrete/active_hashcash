@@ -84,6 +84,8 @@ Or, link hashcash to your JavaScript manifest and load it to your head.
 <%= javascript_include_tag "hashcash", "data-turbo-track": "reload", defer: true %>
 ```
 
+`Hashcash.setup()` runs when the script loads and is safe to call again: it will not mint twice for the same input. If the form appears after a navigation without reloading the script, call `Hashcash.setup()` yourself.
+
 The hashcash stamp will be set in the hidden input once computed and the submit button enabled.
 
 To customize behaviours, you can override methods of ActiveHashcash module.
