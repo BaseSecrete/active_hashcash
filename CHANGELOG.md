@@ -1,5 +1,6 @@
 # Changelog of ActiveHashcash
 
+- Make `Hashcash.setup()` idempotent so it can be called again after navigations 26
 - Fix lost original submit button text with Turbo Drive #29
 
 ## 0.6.2 (2026-11-13)
