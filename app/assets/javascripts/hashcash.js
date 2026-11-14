@@ -49,8 +49,8 @@ document.addEventListener("turbo:before-cache", function() {
   if (input && input.form) {
     input.value = ""
     input.form.querySelectorAll("[type=submit]").forEach(function(submit) {
-      if (submit.originalValue) {
-        Hashcash.setSubmitText(submit, submit.originalValue)
+      if (submit.dataset.originalValue) {
+        Hashcash.setSubmitText(submit, submit.dataset.originalValue)
       }
       submit.disabled = null
     })
@@ -62,10 +62,10 @@ Hashcash.setSubmitText = function(submit, text) {
     return
   }
   if (submit.tagName == "BUTTON") {
-    !submit.originalValue && (submit.originalValue = submit.innerHTML)
+    !submit.dataset.originalValue && (submit.dataset.originalValue = submit.innerHTML)
     submit.innerHTML = text
   } else {
-    !submit.originalValue && (submit.originalValue = submit.value)
+    !submit.dataset.originalValue && (submit.dataset.originalValue = submit.value)
     submit.value = text
   }
 }
@@ -79,7 +79,7 @@ Hashcash.disableParentForm = function(input, options) {
 
 Hashcash.enableParentForm = function(input, options) {
   input.form.querySelectorAll("[type=submit]").forEach(function(submit) {
-    Hashcash.setSubmitText(submit, submit.originalValue)
+    Hashcash.setSubmitText(submit, submit.dataset.originalValue)
     submit.disabled = null
   })
 }
