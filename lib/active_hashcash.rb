@@ -151,7 +151,9 @@ module ActiveHashcash
     # Override me for your own needs.
   end
 
-  # Call it inside the form that have to be protected and don't forget to initialize the JavaScript Hashcash.setup().
+  # Call it inside the form that have to be protected.
+  # hashcash.js calls Hashcash.setup() on load; call it again after navigations that
+  # insert the field without reloading the script. setup is idempotent per input.
   # Unless you need something really special, you should not need to override this method.
   #
   #   <% form_for model do |form| %>
