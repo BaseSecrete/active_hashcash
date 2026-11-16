@@ -1,5 +1,7 @@
 # Changelog of ActiveHashcash
 
+- Relax default throttle windows to 15m/1h/1d
+
 ## 0.6.3 (2026-11-15)
 
 - Make `Hashcash.setup()` idempotent so it can be called again after navigations #26
