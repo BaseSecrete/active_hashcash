@@ -1,8 +1,6 @@
 # Changelog of ActiveHashcash
 
-## Unreleased
-
-- Tighten default throttle rules with 15m/1h/1d windows
+- Relax default throttle windows to 15m/1h/1d
 
 ## 0.6.1 (2026-11-11)
 
