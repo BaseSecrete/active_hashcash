@@ -1,5 +1,7 @@
 # Changelog of ActiveHashcash
 
+- Import NetAPI honeypot block lists (@slavaolesik #28)
+
 ## 0.6.2 (2026-11-13)
 
 - Fix #25 Stop adding lib/ to asset paths so Propshaft doesn't publish Ruby sources (@Spone)
