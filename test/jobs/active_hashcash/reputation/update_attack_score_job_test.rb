@@ -17,7 +17,9 @@ class ActiveHashcash::Reputation::UpdateAttackScoreJobTest < ActiveSupport::Test
       "https://iplists.firehol.org/files/firehol_level1.netset" => "1.2.3.4\n",
       "https://iplists.firehol.org/files/firehol_level2.netset" => "",
       "https://iplists.firehol.org/files/firehol_level3.netset" => "5.6.7.8\n",
-      "https://iplists.firehol.org/files/firehol_level4.netset" => "1.2.3.4\n9.9.9.9\n"
+      "https://netapi.com/api2/?method=compromised&dataset_type=ip&category=C" => "# NetAPI.com - compromised IPs, custom list.\n8.8.4.4\n",
+      "https://iplists.firehol.org/files/firehol_level4.netset" => "1.2.3.4\n9.9.9.9\n",
+      "https://netapi.com/api2/?method=compromised&dataset_type=ip-all&window=30d&category=C" => "# NetAPI.com - compromised IPs, custom list.\n8.8.4.4\n4.4.4.4\n"
     }
     job.define_singleton_method(:fetch) { |url = nil| bodies.fetch(url) }
     ActiveHashcash::Reputation::UpdateAttackScoreJob.stub(:new, job) do
@@ -26,5 +28,7 @@ class ActiveHashcash::Reputation::UpdateAttackScoreJobTest < ActiveSupport::Test
     assert_equal(4, ActiveHashcash::Reputation.scores("1.2.3.4")[:attack])
     assert_equal(2, ActiveHashcash::Reputation.scores("5.6.7.8")[:attack])
     assert_equal(1, ActiveHashcash::Reputation.scores("9.9.9.9")[:attack])
+    assert_equal(2, ActiveHashcash::Reputation.scores("8.8.4.4")[:attack])
+    assert_equal(1, ActiveHashcash::Reputation.scores("4.4.4.4")[:attack])
   end
 end
