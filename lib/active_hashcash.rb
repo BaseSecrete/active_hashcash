@@ -38,13 +38,14 @@ module ActiveHashcash
   #
   # Example:
   #   ActiveHashcash.throttle_rules = [
-  #     {period: 5.minutes, rate: 0.5},
-  #     {period: 1.hour, rate: 0.34},
-  #     {period: 1.day, rate: 0.25}
+  #     {period: 15.minutes, rate: 0.5},
+  #     {period: 1.hour, rate: 0.25},
+  #     {period: 1.day, rate: 0.125}
   #   ]
   mattr_reader :throttle_rules, instance_accessor: false, default: [
-    {period: 1.hour, rate: 0.5},
-    {period: 24.hours, rate: 0.25}
+    {period: 15.minutes, rate: 0.5},
+    {period: 1.hour, rate: 0.25},
+    {period: 1.day, rate: 0.125},
   ]
 
   def self.throttle_rules=(rules)
@@ -151,7 +152,9 @@ module ActiveHashcash
     # Override me for your own needs.
   end
 
-  # Call it inside the form that have to be protected and don't forget to initialize the JavaScript Hashcash.setup().
+  # Call it inside the form that have to be protected.
+  # hashcash.js calls Hashcash.setup() on load; call it again after navigations that
+  # insert the field without reloading the script. setup is idempotent per input.
   # Unless you need something really special, you should not need to override this method.
   #
   #   <% form_for model do |form| %>

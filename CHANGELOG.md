@@ -1,6 +1,12 @@
 # Changelog of ActiveHashcash
 
 - Import NetAPI honeypot block lists (@slavaolesik #28)
+- Relax default throttle windows to 15m/1h/1d
+
+## 0.6.3 (2026-11-15)
+
+- Make `Hashcash.setup()` idempotent so it can be called again after navigations #26
+- Fix lost original submit button text with Turbo Drive #29
 
 ## 0.6.2 (2026-11-13)
 
